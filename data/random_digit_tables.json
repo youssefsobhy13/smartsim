@@ -1,0 +1,20 @@
+{
+  "_note": "Ranges are inclusive. Demand: 00 counts as 100. Lead time: single digit, 0 counts as 10.",
+  "demand_page_86": [
+    {"demand": 0, "prob": 0.10, "cum": 0.10, "rd": "01-10"},
+    {"demand": 1, "prob": 0.25, "cum": 0.35, "rd": "11-35"},
+    {"demand": 2, "prob": 0.35, "cum": 0.70, "rd": "36-70"},
+    {"demand": 3, "prob": 0.21, "cum": 0.91, "rd": "71-91"},
+    {"demand": 4, "prob": 0.09, "cum": 1.00, "rd": "92-00"}
+  ],
+  "lead_time_page_88": [
+    {"days": 1, "prob": 0.60, "cum": 0.60, "rd": "1-6"},
+    {"days": 2, "prob": 0.30, "cum": 0.90, "rd": "7-9"},
+    {"days": 3, "prob": 0.10, "cum": 1.00, "rd": "0/10"}
+  ],
+  "newsday_page_134": [
+    {"type": "Good", "prob": 0.35, "cum": 0.35, "demand": 40, "rd": "00-34"},
+    {"type": "Fair", "prob": 0.45, "cum": 0.80, "demand": 50, "rd": "35-79"},
+    {"type": "Poor", "prob": 0.20, "cum": 1.00, "demand": 60, "rd": "80-99"}
+  ]
+}
