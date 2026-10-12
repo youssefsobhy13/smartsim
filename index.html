@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartSim | Integrated Educational Simulation Platform</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+<style>
+:root{--bg:#070b1a;--bg2:#101a3a;--card:rgba(22,32,70,.72);--line:rgba(120,140,230,.28);--tx:#fff;--mu:#93a0c8;--c1:#38bdf8;--c2:#a78bfa;--c3:#34d399;--c4:#fbbf24;--c5:#fb7185;--c6:#fb923c;}
+[data-theme=light]{--bg:#f3f6ff;--bg2:#dfe8ff;--card:rgba(255,255,255,.85);--line:rgba(80,100,180,.25);--tx:#0f1b3d;--mu:#55618a;--c1:#0284c7;--c2:#7c3aed;--c3:#059669;--c4:#d97706;--c5:#e11d48;--c6:#ea580c;}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Segoe UI",system-ui,Tahoma,sans-serif;background:linear-gradient(160deg,var(--bg),var(--bg2));background-attachment:fixed;color:var(--tx);overflow-x:hidden;transition:background .5s,color .4s}
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+#bar{position:fixed;top:0;left:0;height:4px;width:0;z-index:100;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3))}
+nav{position:fixed;top:0;inset-inline:0;z-index:50;display:flex;align-items:center;gap:6px;padding:12px 4%;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 70%,transparent);border-bottom:1px solid var(--line)}
+.uni{height:38px;width:auto;max-width:120px;object-fit:contain;margin-inline-end:6px}
+.uni-hero{height:90px;width:auto;max-width:220px;object-fit:contain;margin-bottom:18px;align-self:flex-start}
+nav b{font-size:1.3rem;margin-inline-end:auto}
+nav a{color:var(--mu);text-decoration:none;padding:6px 10px;border-radius:20px;font-size:.88rem;transition:.25s}
+nav a:hover{color:var(--tx);background:var(--line)}
+.tbtn{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:30px;padding:6px 14px;font-size:1rem;transition:.3s}
+.tbtn:hover{transform:rotate(12deg) scale(1.1)}
+@media(max-width:850px){nav a{display:none}}
+section{position:relative;z-index:1;padding:90px 6% 40px;max-width:1250px;margin:auto}
+h2{font-size:clamp(1.8rem,4vw,2.7rem);margin-bottom:8px}
+.sub{color:var(--mu);margin-bottom:30px}
+.tag{display:inline-block;border:1px solid var(--c1);color:var(--c1);border-radius:30px;padding:3px 14px;font-size:.8rem;margin-bottom:10px}
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+#hero h1{font-size:clamp(3.5rem,13vw,9rem);font-weight:800;line-height:1;background:linear-gradient(90deg,var(--tx),var(--c1),var(--c2),var(--tx));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+@keyframes shine{to{background-position:300% 0}}
+.line{height:7px;width:0;border-radius:6px;background:var(--c1);margin:18px 0;animation:grow 1.4s .3s forwards}
+@keyframes grow{to{width:min(360px,60%)}}
+#hero h3{color:var(--c1);font-weight:400;font-size:clamp(1.1rem,3vw,2rem)}
+#typed{min-height:1.6em;color:var(--c4);margin:10px 0 20px;font-weight:600}
+.pills{display:flex;flex-wrap:wrap;gap:12px;max-width:620px}
+.pill{padding:10px 22px;border-radius:40px;border:1px solid var(--c1);background:var(--card);font-weight:600;transition:.3s}
+.pill:nth-child(2){border-color:var(--c2)}.pill:nth-child(3){border-color:var(--c3)}.pill:nth-child(4){border-color:var(--c4)}
+.pill:hover{transform:translateY(-4px) scale(1.05)}
+.net{position:absolute;right:4%;top:22%;width:min(360px,35vw);opacity:.9}
+.net circle{animation:pulse 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.net circle:nth-child(even){animation-delay:1s}
+@keyframes pulse{50%{transform:scale(1.3)}}
+@media(max-width:800px){.net{display:none}}
+.float{position:fixed;z-index:1;font-size:1.8rem;opacity:.5;pointer-events:none;animation:fl 14s linear infinite}
+@keyframes fl{from{transform:translateY(105vh) rotate(0)}to{transform:translateY(-15vh) rotate(360deg)}}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;backdrop-filter:blur(8px);transition:.35s}
+.card:hover{transform:translateY(-8px) rotate(-.4deg);border-color:var(--c1);box-shadow:0 14px 40px rgba(56,189,248,.18)}
+.card h4{font-size:1.2rem;margin-bottom:10px}
+.card li{list-style:none;padding:4px 0;color:var(--tx)}
+.card li::before{content:"▪ ";color:var(--c3)}
+.em{font-size:2.2rem;display:block;margin-bottom:8px;animation:bob 2.5s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.rv{opacity:0;transform:translateY(40px);transition:1s cubic-bezier(.2,.7,.2,1)}
+.rv.on{opacity:1;transform:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-top:20px}
+.stat{text-align:center;padding:20px 10px;border-radius:18px;border:1px solid var(--line);background:var(--card)}
+.stat b{display:block;font-size:2.3rem;color:var(--c1)}
+.stat:nth-child(2) b{color:var(--c2)}.stat:nth-child(3) b{color:var(--c5)}.stat:nth-child(4) b{color:var(--c4)}.stat:nth-child(5) b{color:var(--c3)}
+.phases .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--card)}
+.phases .row>b{min-width:170px}
+.chip{padding:7px 16px;border-radius:30px;border:1px solid var(--c2);font-size:.9rem;transition:.25s}
+.chip:hover{background:var(--c2);color:#fff;transform:scale(1.08)}
+.mod{font-family:Consolas,monospace;text-align:center}
+.mod small{display:block;color:var(--mu);font-family:inherit}
+table{width:100%;border-collapse:collapse;border-radius:14px;overflow:hidden}
+th{background:var(--c3);color:#06201a;padding:9px}
+td{padding:8px;text-align:center;border-bottom:1px solid var(--line)}
+tr:hover td{background:var(--line)}
+.btn{cursor:pointer;border:0;border-radius:30px;padding:11px 24px;font-size:1rem;font-weight:700;color:#06121f;background:linear-gradient(90deg,var(--c1),var(--c3));transition:.3s}
+.btn:hover{transform:scale(1.07);box-shadow:0 8px 25px rgba(52,211,153,.4)}
+.dice{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.dice span{width:54px;height:54px;border-radius:14px;background:#fff;color:#0a1128;font-size:1.7rem;font-weight:800;display:grid;place-items:center;transition:.3s}
+.dice span.hit{background:var(--c4);transform:translateY(-8px) scale(1.12)}
+svg text{fill:var(--mu);font-size:11px}
+.path{stroke-dasharray:1400;stroke-dashoffset:1400}
+.on .path{animation:draw 3s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.bar{height:36px;border-radius:10px;width:0;transition:1.6s cubic-bezier(.2,.8,.2,1);display:flex;align-items:center;justify-content:flex-end;padding-inline:12px;font-weight:700;color:#06121f;margin:8px 0 16px}
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:34px 20px;max-width:1100px;margin:auto}
+.mem{text-align:center}
+.ring{width:170px;height:170px;margin:auto;border-radius:50%;padding:5px;background:conic-gradient(var(--c1),var(--c2),var(--c3),var(--c4),var(--c5),var(--c1));transition:transform .4s cubic-bezier(.2,.8,.2,1);cursor:pointer;position:relative;z-index:1}
+.ring.big{transform:scale(1.35);z-index:5;box-shadow:0 14px 50px rgba(56,189,248,.45)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ph{width:100%;height:100%;border-radius:50%;background:var(--bg2);overflow:hidden;display:grid;place-items:center;font-size:3rem;position:relative}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mem h5{margin-top:14px;font-size:1.1rem;letter-spacing:1px}
+.ct{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.ct a{text-decoration:none;color:var(--tx);text-align:center}
+.ct a:hover .em{animation-duration:.6s}
+.wa{border-color:#25d366}
+input,textarea{width:100%;padding:12px;margin:6px 0;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--tx);font:inherit}
+code,pre{font-family:Consolas,monospace;color:var(--c3)}
+pre{background:#050a14;padding:14px;border-radius:12px;overflow:auto;border:1px solid var(--c3)}
+.ghb{display:inline-flex;align-items:center;gap:14px;margin-top:16px;padding:12px 22px;border-radius:14px;background:#24292f;color:#fff;text-decoration:none;border:1px solid #57606a;transition:.3s;text-align:left}.ghb:hover{transform:translateY(-4px);background:#000;box-shadow:0 10px 30px rgba(0,0,0,.45)}.ghb span{display:flex;flex-direction:column;line-height:1.2}.ghb small{color:#c9d1d9;font-size:.7rem}.ghb b{font-size:1.15rem}.ghb i{font-style:normal;margin-inline-start:6px;padding:4px 10px;border-radius:8px;background:#30363d;font-size:.8rem}
+footer{position:relative;z-index:1;text-align:center;padding:40px 10px;color:var(--mu)}
+#top{position:fixed;bottom:22px;right:22px;z-index:60;width:46px;height:46px;border-radius:50%;border:0;cursor:pointer;background:var(--c1);color:#06121f;font-size:1.3rem;opacity:0;transition:.3s}
+#top.s{opacity:1}
+html[dir=rtl] .net{right:auto;left:4%}
+html[dir=rtl] .bar{justify-content:flex-start}
+pre,code,.mod,.ghb,svg,.team h5{direction:ltr}
+html[dir=rtl] body{font-family:"Segoe UI",Tahoma,system-ui,sans-serif}
+.dclk{font-size:1.3rem;padding:6px 16px;border-radius:30px;border:1px solid var(--c4);color:var(--c4)}
+.stage{position:relative;height:205px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(180deg,var(--card),transparent);overflow:hidden;direction:ltr}
+.zone{position:absolute;top:10px;text-align:center;font-size:2rem}.zone small{display:block;font-size:.72rem;color:var(--mu);font-weight:700}
+.qline{position:absolute;left:12%;width:44%;top:168px;border-bottom:3px dashed var(--line)}
+.pg{height:8px;border-radius:6px;background:var(--line);margin:6px auto;width:90%;overflow:hidden}.pg i{display:block;height:100%;width:0;background:var(--c3)}
+.cu{position:absolute;top:102px;left:0;opacity:0;transform:translateX(-50%);text-align:center;font-size:2.3rem;transition:left .9s cubic-bezier(.3,.8,.3,1),opacity .5s;line-height:1.1}
+.cu small{display:block;font-size:.7rem;color:var(--c4);font-weight:700}.cu.sv span{display:inline-block;animation:bob .8s ease-in-out infinite}
+#dlog{max-height:150px;overflow:auto;margin-top:10px;font-size:.9rem}#dlog div{padding:4px 8px;border-bottom:1px solid var(--line);animation:fi .5s}
+@keyframes fi{from{opacity:0;transform:translateX(-10px)}}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}.flow em{font-style:normal;color:var(--mu)}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}.ctl .dclk{margin-inline-start:auto}
+.dgrid{display:grid;grid-template-columns:1fr 190px;gap:14px}@media(max-width:800px){.dgrid{grid-template-columns:1fr}.kp{flex-direction:row!important}}
+.kp{display:flex;flex-direction:column;gap:10px}.kpi{flex:1;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center;background:var(--card)}
+.kpi small{display:block;color:var(--mu);font-size:.78rem}.kpi b{font-size:1.5rem;color:var(--c1)}
+.dh{margin:20px 0 8px;color:var(--c2)}
+.dt td{white-space:nowrap}.dt th{font-size:.85rem}
+.bd{display:inline-block;padding:2px 12px;border-radius:20px;font-size:.8rem;font-weight:700}
+.bd.w0{background:var(--line);color:var(--mu)}.bd.w1{background:var(--c4);color:#06121f}.bd.w2{background:var(--c1);color:#06121f}.bd.w3{background:var(--c3);color:#06121f}
+.dt tr.act td{background:color-mix(in srgb,var(--c1) 14%,transparent)}
+.ev{display:flex;gap:10px;align-items:center;padding:7px 10px;margin:5px 0;border-radius:10px;background:var(--card);border-inline-start:4px solid var(--c1)}
+.ev.s{border-color:var(--c4)}.ev.d{border-color:var(--c3)}.ev .tc{font-family:Consolas,monospace;min-width:74px;padding:2px 8px;border-radius:8px;background:var(--line);text-align:center}
+input[type=range]{accent-color:var(--c1);width:150px;vertical-align:middle}
+.hint{color:var(--mu);font-size:.9rem;margin:4px 0 10px}
+.fm{padding:10px 12px;border-radius:12px;background:var(--card);border:1px dashed var(--line);margin:10px 0;font-family:Consolas,monospace;overflow-wrap:anywhere}.fm.big{font-size:1.1rem;color:var(--c3)}
+.dd{width:54px;height:54px;border-radius:14px;background:#fff;color:#0a1128;font-size:1.6rem;font-weight:800;display:grid;place-items:center;cursor:pointer;transition:.25s;user-select:none}.dd.on{background:var(--c4);transform:translateY(-6px) scale(1.08)}
+.hist{display:flex;gap:10px;align-items:flex-end;height:110px;margin-top:6px}.hb{flex:1;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}.hb i{width:100%;background:var(--line);border-radius:6px 6px 0 0;transition:height .4s}.hb i.on{background:var(--c4)}.hb small{font-size:.7rem;color:var(--mu)}
+.coin{font-size:2rem;margin:8px 0;min-height:2.4rem}.tw{max-height:340px;overflow:auto;border-radius:12px}
+.dt tr.sh td{background:rgba(251,113,133,.38)}.nb{margin-bottom:6px}.nb small{color:var(--mu)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+
+.uni{height:44px;width:44px;max-width:none;border-radius:50%;object-fit:cover;background:#fff;border:2px solid var(--c1);box-shadow:0 0 0 4px color-mix(in srgb,var(--c1) 22%,transparent),0 4px 14px rgba(0,0,0,.35);margin-inline-end:10px;transition:.5s}
+.uni:hover{transform:rotate(360deg) scale(1.12)}
+#structure .mod,#structure .chip{cursor:pointer}
+#structure .mod.sel{border-color:var(--c1);box-shadow:0 0 22px rgba(56,189,248,.35)}
+.bkr{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px;min-height:38px;align-items:center}
+.bkl{max-height:230px;overflow:auto}
+.bkl div{padding:6px 10px;border-bottom:1px solid var(--line);font-size:.92rem}
+.bkl b{color:var(--c4);margin-inline-end:8px}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<canvas id="bg"></canvas>
+<nav>
+  <img class="uni" src="logo.png" alt="Sphinx University" onerror="this.remove()"><b>🎲 SmartSim</b>
+  <a href="#idea">Idea</a><a href="#concepts">Concepts</a><a href="#lab">Live Lab</a><a href="#bank">Bank</a><a href="#inventory">Inventory</a><a href="#news">Newsvendor</a><a href="#team">Team</a><a href="#contact">Contact</a>
+  <button class="tbtn" id="lg" title="Language">عربي</button>
+  <button class="tbtn" id="tg" title="Day / Night">🌙</button>
+</nav>
+
+<section id="hero">
+  <svg class="net" viewBox="0 0 300 400"><g stroke="#38bdf8" stroke-width="2" opacity=".6"><path d="M30 80L150 20L260 100L180 190L240 260L130 340L60 250L180 190M30 80L260 100M150 20L180 190"/></g>
+  <circle cx="30" cy="80" r="16" fill="#38bdf8"/><circle cx="150" cy="20" r="11" fill="#a78bfa"/><circle cx="260" cy="100" r="16" fill="#34d399"/><circle cx="180" cy="190" r="11" fill="#fbbf24"/><circle cx="240" cy="260" r="16" fill="#38bdf8"/><circle cx="60" cy="250" r="11" fill="#a78bfa"/><circle cx="130" cy="340" r="16" fill="#34d399"/></svg>
+  
+  <h1>SmartSim</h1>
+  <div class="line"></div>
+  <h3>Integrated Educational Simulation Platform 🚀</h3>
+  <div id="typed"></div>
+  <div class="pills"><span class="pill">🎓 Sphinx University</span><span class="pill">👨‍🏫 Dr. Amr A. Hassanain</span><span class="pill">📅 Fall 2027</span><span class="pill">👥 Team of 10 Students</span></div>
+  <p style="margin-top:22px;color:var(--mu)">Modeling &amp; Simulation Project | BAS221</p>
+  <p style="margin-top:20px"><button class="btn" onclick="location.hash='#lab'">🎮 Try the Live Lab</button> <a href="https://github.com/youssefsobhy13/smartsim" target="_blank" class="ghb"><svg viewBox="0 0 16 16" width="30" height="30" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span><small>View the project on</small><b>GitHub</b></span><i>★ youssefsobhy13/smartsim</i></a></p>
+</section>
+
+<section id="idea" class="rv">
+  <span class="tag">INTRODUCTION</span><h2>Project Idea 💡</h2><p class="sub">From theory to practice</p>
+  <div class="grid g2">
+    <div class="card" style="border-inline-start:5px solid var(--c5)"><h4 style="color:var(--c5)">😖 The Problem</h4><ul><li>Theory is hard without practice</li><li>No link between chapters</li><li>Complex systems are hard to analyze</li></ul></div>
+    <div class="card" style="border-inline-start:5px solid var(--c3)"><h4 style="color:var(--c3)">✅ The Solution</h4><ul><li>One integrated Python application</li><li>Full coverage of Chapter 1 &amp; 2</li><li>Hands-on apps: inventory + newsvendor</li><li>Results match the lectures</li></ul></div>
+  </div>
+  <p style="text-align:center;margin:26px 0;font-size:1.15rem">🧑‍🎓 Student + Book + Computer ➜ 🧠 Better Understanding ➜ 🏭 Real Application</p>
+
+  <h2 style="margin-top:50px">Project Goals 🎯</h2><p class="sub">Six goals, one platform</p>
+  <div class="grid g3">
+    <div class="card"><span class="em">📚</span><h4 style="color:var(--c1)">Educational</h4>Understand concepts theoretically</div>
+    <div class="card"><span class="em">🛠️</span><h4 style="color:var(--c2)">Practical</h4>Apply simulation hands-on</div>
+    <div class="card"><span class="em">📊</span><h4 style="color:var(--c3)">Analytical</h4>Analyze results statistically</div>
+    <div class="card"><span class="em">🔗</span><h4 style="color:var(--c4)">Integration</h4>Link chapters together</div>
+    <div class="card"><span class="em">✔️</span><h4 style="color:var(--c5)">Validation</h4>Match results with the source</div>
+    <div class="card"><span class="em">📈</span><h4 style="color:var(--c3)">Scalability</h4>Easy to extend and maintain</div>
+  </div>
+</section>
+
+<section id="structure" class="rv">
+  <span class="tag">INTRODUCTION</span><h2>Project Structure 🗂️</h2><p class="sub">8 modules + tests</p>
+  <div class="grid g3">
+    <div class="card mod">main.py<small>Entry point</small></div><div class="card mod">config/<small>Settings</small></div><div class="card mod">core/<small>Simulation engine</small></div>
+    <div class="card mod">module1_probability<small>Sample spaces, rules, Bayes</small></div><div class="card mod">module2_random<small>LCG, inverse transform</small></div><div class="card mod">module3_distributions<small>PMF / PDF / CDF</small></div>
+    <div class="card mod">module4_inventory<small>(M,N) system</small></div><div class="card mod">module5_newspaper<small>Newsvendor problem</small></div><div class="card mod">module6_statistics<small>CI, CLT, variance</small></div>
+    <div class="card mod">module7_visualization<small>Plots + dashboard</small></div><div class="card mod">module8_validation<small>Source comparison</small></div><div class="card mod">tests/<small>Unit tests</small></div>
+  </div>
+  <div class="card" id="mi" style="margin-top:18px"><p class="hint">👆 Click any module to see what it does</p></div>
+  <h2 style="margin-top:50px">Workflow Map 🗺️</h2><p class="sub">10 weeks, 10 team members</p>
+  <div class="phases">
+    <div class="row" style="border-color:var(--c1)"><b style="color:var(--c1)">PHASE 1 · Foundations<br><small>Weeks 1-2</small></b><span class="chip">P1 Sample Space</span><span class="chip">P2 Prob. Rules</span><span class="chip">P3 Distributions</span></div>
+    <div class="row" style="border-color:var(--c2)"><b style="color:var(--c2)">PHASE 2 · Tools<br><small>Weeks 3-4</small></b><span class="chip">P4 Random Gen</span><span class="chip">P5 DES Engine</span></div>
+    <div class="row" style="border-color:var(--c3)"><b style="color:var(--c3)">PHASE 3 · Applications<br><small>Weeks 5-7</small></b><span class="chip">P6 Inventory</span><span class="chip">P7 Analysis</span><span class="chip">P8 Newspaper</span></div>
+    <div class="row" style="border-color:var(--c4)"><b style="color:var(--c4)">PHASE 4 · Analysis<br><small>Weeks 8-9</small></b><span class="chip">P9 Statistics</span><span class="chip">P10 Viz + Main</span></div>
+    <div class="row" style="border-color:var(--c3);justify-content:center"><b>Week 10: Integration + Testing ➜ <code>python main.py</code></b></div>
+  </div>
+<div class="card" id="pi" style="margin-top:6px"><p class="hint">👆 Click any phase task to see what the student builds</p></div>
+</section>
+
+<section id="concepts" class="rv">
+  <span class="tag" style="color:var(--c4);border-color:var(--c4)">CORE CONCEPTS</span><h2>Probability &amp; Distributions 🎲</h2><p class="sub">Sample spaces, events, random variables — try them yourself</p>
+  <div class="grid g2">
+    <div class="card"><h4 style="color:var(--c4)">1 · Events on a die (Pages 7-18)</h4>
+      <p class="hint">Click numbers to build an event E, or pick a preset.</p>
+      <div class="dice" id="dsel"></div>
+      <div class="ctl"><button class="tbtn" data-ev="2,4,6">Even</button><button class="tbtn" data-ev="1,3,5">Odd</button><button class="tbtn" data-ev="2,3,5">Prime</button><button class="tbtn" data-ev="">Clear</button></div>
+      <div class="fm" id="evf"></div>
+      <div class="ctl"><button class="btn" id="r1">🎲 Roll ×1</button><button class="btn" id="r100">🎲 Roll ×100</button><button class="tbtn" id="rrst">🔄 Reset</button></div>
+      <div class="hist" id="dh"></div><div class="fm" id="evo"></div></div>
+    <div class="card"><h4 style="color:var(--c3)">2 · Random variable: two coins (Page 26 / 38)</h4>
+      <p class="hint">X = number of heads. Flip and watch the observed bars approach the theory.</p>
+      <div class="coin" id="coins">🪙 🪙</div>
+      <div class="ctl"><button class="btn" id="f1">🪙 Flip ×1</button><button class="btn" id="f100">🪙 Flip ×100</button><button class="tbtn" id="frst">🔄 Reset</button></div>
+      <svg id="cs" viewBox="0 0 300 150" width="100%"></svg><div class="fm" id="cst"></div></div>
+  </div>
+  <div class="card" style="margin-top:18px"><h4 style="color:var(--c2)">3 · Exponential distribution f(x) = e⁻ˣ (Page 43)</h4>
+    <p class="hint">Move a and b: the shaded area under the PDF is the probability, and the CDF gives the same number as F(b) − F(a).</p>
+    <div class="ctl"><label>a = <b id="av">1.0</b> <input type="range" id="as" min="0" max="5" step="0.1" value="1"></label>
+      <label>b = <b id="bv">2.5</b> <input type="range" id="bs" min="0" max="6" step="0.1" value="2.5"></label>
+      <label><input type="checkbox" id="binf"> b = ∞</label></div>
+    <div class="ctl"><button class="tbtn" data-pe="0,1,0">P(X&lt;1)</button><button class="tbtn" data-pe="1,2.5,0">P(1≤X&lt;2.5)</button><button class="tbtn" data-pe="3,6,1">P(X≥3)</button></div>
+    <div class="grid g2"><svg id="pdf" viewBox="0 0 320 160" width="100%"></svg><svg id="cdf" viewBox="0 0 320 160" width="100%"></svg></div>
+    <div class="fm big" id="pr"></div></div>
+</section>
+
+<section id="lab" class="rv">
+  <span class="tag" style="color:var(--c4);border-color:var(--c4)">LIVE LAB</span><h2>Random Numbers Lab 🔮</h2><p class="sub">LCG: X(n+1) = (a·X(n) + c) mod m, with a=1103515245, c=12345, m=2³¹</p>
+  <div class="grid g2">
+    <div class="card"><h4 style="color:var(--c1)">Generate demand (Page 86)</h4>
+      <label>Seed: <input id="seed" type="number" value="42"></label>
+      <button class="btn" id="gen">⚡ Generate 10 days</button>
+      <div id="lcg" style="margin-top:14px;line-height:2"></div></div>
+    <div class="card"><h4 style="color:var(--c2)">Demand table</h4>
+      <table><tr><th>Demand</th><th>Prob</th><th>Cum</th><th>RD Range</th></tr>
+      <tr><td>0</td><td>0.10</td><td>0.10</td><td>01-10</td></tr><tr><td>1</td><td>0.25</td><td>0.35</td><td>11-35</td></tr><tr><td>2</td><td>0.35</td><td>0.70</td><td>36-70</td></tr><tr><td>3</td><td>0.21</td><td>0.91</td><td>71-91</td></tr><tr><td>4</td><td>0.09</td><td>1.00</td><td>92-00</td></tr></table>
+      <p style="margin-top:10px;color:var(--c4)">Draw RD ➜ find its range ➜ get the value</p></div>
+  </div>
+  <h2 style="margin-top:40px">Discrete-Event Engine ⏱️</h2><p class="sub">Virtual clock: minutes pass in seconds · one employee · FIFO queue</p>
+  <div class="card">
+    <div class="flow"><span class="chip">1 · Arrival event</span><em>➜</em><span class="chip">2 · Queue (FIFO)</span><em>➜</em><span class="chip">3 · Service (employee)</span><em>➜</em><span class="chip">4 · Departure → OUT</span></div>
+    <div class="ctl">
+      <button class="btn" id="dplay">▶️ Play</button><button class="tbtn" id="dreset">🔄 Reset</button>
+      <select id="dmode" class="tbtn"><option value="ex">Example (3 customers)</option><option value="rnd">Random (6 customers)</option></select>
+      <label>Speed: <select id="dspd" class="tbtn"><option value="1">1x</option><option value="2">2x</option><option value="4">4x</option></select></label>
+      <div class="dclk">⏱️ t = <b id="dclk">0.0</b> min</div>
+    </div>
+    <div class="dgrid">
+      <div class="stage">
+        <div class="zone" style="left:1%;width:10%">🚪<small>Entrance</small></div>
+        <div class="qline"></div>
+        <div class="zone desk" style="left:64%;width:16%">🧑‍💼🖥️<small>Employee</small><div class="pg"><i id="pgb"></i></div></div>
+        <div class="zone" style="left:86%;width:12%">🚪➡️<small>OUT</small></div>
+        <div id="cust"></div>
+      </div>
+      <div class="kp">
+        <div class="kpi"><small>Now serving</small><b id="kserv">—</b></div>
+        <div class="kpi"><small>In queue</small><b id="kq">0</b></div>
+        <div class="kpi"><small>Completed</small><b id="kdone">0</b></div>
+      </div>
+    </div>
+    <h4 class="dh">Customer table</h4>
+    <div style="overflow-x:auto"><table class="dt"><thead><tr><th>Customer</th><th>Arrival</th><th>Service start</th><th>Wait</th><th>Service</th><th>Departure</th><th>Status</th></tr></thead><tbody id="dtb"></tbody></table></div>
+    <h4 class="dh">Results</h4>
+    <div class="stats" style="margin-top:0">
+      <div class="stat"><b id="rt">—</b>Total time</div><div class="stat"><b id="rw">—</b>Avg wait</div><div class="stat"><b id="rm">—</b>Max wait</div><div class="stat"><b id="ru">—</b>Server busy</div>
+    </div>
+    <h4 class="dh">Event timeline</h4>
+    <div id="dlog"></div>
+  </div>
+</section>
+
+<section id="bank" class="rv">
+  <span class="tag" style="color:var(--c1);border-color:var(--c1)">DISCRETE EVENTS</span><h2>Bank Simulator 🏦</h2><p class="sub">The clock jumps from one event to the next. Nothing happens in between. Press “Next event” and watch.</p>
+  <div class="card">
+    <div class="flow"><span class="chip">A = Arrival</span><em>➜</em><span class="chip">Teller free? serve : wait</span><em>➜</em><span class="chip">D = Departure</span><em>➜</em><span class="chip">Next in queue starts</span></div>
+    <div class="ctl">
+      <label>Tellers = <b id="bkTv">1</b> <input type="range" id="bkT" min="1" max="4" value="1"></label>
+      <label>Arrival gap = <b id="bkAv">3</b> <input type="range" id="bkA" min="1" max="6" value="3"></label>
+      <label>Service = <b id="bkSv">4</b> <input type="range" id="bkS" min="1" max="8" value="4"></label>
+      <label>Customers = <b id="bkNv">12</b> <input type="range" id="bkN" min="5" max="30" value="12"></label>
+    </div>
+    <div class="ctl"><button class="btn" id="bkPlay">▶️ Play</button><button class="btn" id="bkStep" style="background:linear-gradient(90deg,var(--c2),var(--c5));color:#fff">⏭ Next event</button><button class="tbtn" id="bkRst">🔄 New run</button><div class="dclk">⏱️ t = <b id="bkClk">0.0</b> min</div></div>
+    <p class="hint" id="bkRho"></p>
+    <h4 class="dh">Future Event List (FEL)</h4><div class="bkr" id="bkF"></div>
+    <h4 class="dh">Tellers</h4><div class="bkr" id="bkTl"></div>
+    <h4 class="dh">Waiting queue</h4><div class="bkr" id="bkQ"></div>
+    <div class="stats" style="margin-top:0"><div class="stat"><b id="bk1">0</b>Served</div><div class="stat"><b id="bk2">—</b>Avg wait</div><div class="stat"><b id="bk3">0</b>Max queue</div><div class="stat"><b id="bk4">—</b>Teller busy</div></div>
+    <h4 class="dh">Event log</h4><div class="bkl" id="bkLog"></div>
+  </div>
+</section>
+
+<section id="inventory" class="rv">
+  <span class="tag" style="color:var(--c3);border-color:var(--c3)">APPLICATIONS</span><h2>Inventory System (M,N) 📦</h2><p class="sub">Review every N days, order up to M. Orders arrive after a random lead time.</p>
+  <div class="flow"><span class="chip">1 · Demand for items</span><em>➜</em><span class="chip">2 · Inventory review</span><em>➜</em><span class="chip">3 · Receipt of order</span></div>
+  <div class="card">
+    <div class="ctl"><button class="btn" id="ibook">📖 Book example</button><button class="btn" id="irnd" style="background:linear-gradient(90deg,var(--c2),var(--c5));color:#fff">🎲 Random run</button>
+      <label>M = <b id="Mv">11</b> <input type="range" id="Ms" min="6" max="20" value="11"></label>
+      <label>N = <b id="Nv">5</b> <input type="range" id="Ns" min="4" max="10" value="5"></label>
+      <label>Cycles = <b id="Cv">5</b> <input type="range" id="Cs" min="2" max="8" value="5"></label></div>
+    <p class="hint" id="ihint"></p>
+    <div class="stats" style="margin-top:0"><div class="stat"><b id="im1">—</b>Total Ending Inv.</div><div class="stat"><b id="im2">—</b>Average Inventory</div><div class="stat"><b id="im3">—</b>Shortage Days</div><div class="stat"><b id="im4">—</b>Shortage Rate</div><div class="stat"><b id="im5">—</b>Service Level</div></div>
+    <div class="grid g2" style="margin-top:14px;align-items:start">
+      <div><svg id="inv" viewBox="0 0 700 270" width="100%"></svg><p id="tip" style="color:var(--c4);min-height:1.5em"></p></div>
+      <div class="tw"><table class="dt"><thead><tr><th>Cyc</th><th>Day</th><th>Begin</th><th>RD</th><th>Dem</th><th>End</th><th>Notes</th></tr></thead><tbody id="itb"></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section id="news" class="rv">
+  <span class="tag" style="color:var(--c6);border-color:var(--c6)">APPLICATIONS</span><h2>Newspaper Seller 📰</h2><p class="sub">Buys at $0.33 · sells at $0.50 · unsold = $0.00</p>
+  <div class="grid g2" style="align-items:start">
+    <div class="card"><h4 style="color:var(--c6)">Scenario &amp; profit</h4>
+      <table><tr><th style="background:var(--c6)">Type</th><th style="background:var(--c6)">Prob</th><th style="background:var(--c6)">Demand</th><th style="background:var(--c6)">RD Range</th></tr>
+      <tr><td>Good</td><td>0.35</td><td>40</td><td>00-34</td></tr><tr><td>Fair</td><td>0.45</td><td>50</td><td>35-79</td></tr><tr><td>Poor</td><td>0.20</td><td>60</td><td>80-99</td></tr></table>
+      <pre style="margin-top:12px">Demand ≤ Q : Profit = D*0.50 − Q*0.33
+Demand &gt; Q : Profit = Q*0.50 − Q*0.33</pre></div>
+    <div class="card"><h4 style="color:var(--c4)">Simulation</h4>
+      <div class="ctl"><label>Days = <b id="ndv">1000</b> <input type="range" id="nds" min="10" max="5000" step="10" value="1000"></label><button class="btn" id="nsim">▶️ Simulate</button></div>
+      <p class="hint">All three order sizes use the same random days (CRN, Page 65) so the comparison is fair.</p>
+      <div id="nbars"></div></div>
+  </div>
+  <div class="card" style="margin-top:18px"><h4 style="color:var(--c2)">First 10 days — order Q = <select id="nq" class="tbtn"><option>40</option><option>50</option><option>60</option></select></h4>
+    <div style="overflow-x:auto"><table class="dt"><thead><tr><th>Day</th><th>RD</th><th>Newsday</th><th>Demand</th><th>Sold</th><th>Unsold</th><th>Lost</th><th>Profit</th></tr></thead><tbody id="ntb"></tbody></table></div></div>
+</section>
+
+<section id="stats" class="rv">
+  <span class="tag" style="color:var(--c5);border-color:var(--c5)">ANALYSIS</span><h2>Statistics, Visuals &amp; Validation 📊</h2><p class="sub">Pages 57-65</p>
+  <div class="grid g3">
+    <div class="card"><h4 style="color:var(--c1)">Confidence Interval</h4>95% CI = x̄ ± t·s/√n<br><code>3.5 → [3.2, 3.8]</code></div>
+    <div class="card"><h4 style="color:var(--c2)">Variance Reduction</h4>CRN · Antithetic Variates · Control Variates · Stratified</div>
+    <div class="card"><h4 style="color:var(--c3)">LLN &amp; CLT</h4>Sample mean → population mean · sums → Normal (n ≥ 30)</div>
+  </div>
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card"><h4 style="color:var(--c1)">Law of Large Numbers · Confidence interval (Pages 57-64)</h4>
+      <p class="hint">Roll a fair die n times. The running average approaches the true mean 3.5, and the 95% CI shrinks as n grows.</p>
+      <div class="ctl"><label>n = <b id="lnv">200</b> <input type="range" id="lns" min="10" max="2000" step="10" value="200"></label><button class="btn" id="lln">▶️ Run</button></div>
+      <svg id="llsvg" viewBox="0 0 340 170" width="100%"></svg><div class="fm" id="llr"></div></div>
+    <div class="card"><h4 style="color:var(--c3)">Central Limit Theorem (Page 57)</h4>
+      <p class="hint">Average of 30 die rolls, repeated many times: the histogram becomes a bell curve.</p>
+      <div class="ctl"><label>Repeats = <b id="clv">500</b> <input type="range" id="cls" min="50" max="3000" step="50" value="500"></label><button class="btn" id="clt">▶️ Run</button></div>
+      <svg id="cltsvg" viewBox="0 0 340 170" width="100%"></svg><div class="fm" id="clr"></div></div>
+  </div>
+  <div class="card" style="margin-top:18px"><h4 style="color:var(--c5)">Results validation ✅ (source vs computed)</h4>
+    <p class="hint">Press the button: every number is recomputed live in your browser and compared with the lecture value.</p>
+    <div class="ctl"><button class="btn" id="vrun">▶️ Run verification</button></div>
+    <table><thead><tr><th>Metric</th><th>Source</th><th>Computed</th><th>Match</th></tr></thead><tbody id="vtb"></tbody></table>
+    <div class="bar" id="vbar" data-w="0" style="background:var(--c3);margin-top:16px;justify-content:center"></div></div>
+</section>
+
+<section id="tech" class="rv">
+  <span class="tag" style="color:#2dd4bf;border-color:#2dd4bf">WRAP-UP</span><h2>Technologies &amp; How to Run 🐍</h2><p class="sub">Python 3.9+ scientific stack</p>
+  <div class="grid g3">
+    <div class="card"><span class="em">🔢</span><h4 style="color:var(--c1)">NumPy</h4>Numerical computing</div><div class="card"><span class="em">📉</span><h4 style="color:var(--c2)">Matplotlib</h4>Static charts</div><div class="card"><span class="em">🖱️</span><h4 style="color:var(--c3)">Plotly</h4>Interactive dashboard</div>
+    <div class="card"><span class="em">🐼</span><h4 style="color:var(--c4)">Pandas</h4>Data analysis</div><div class="card"><span class="em">⏳</span><h4 style="color:var(--c5)">SimPy</h4>Event simulation</div><div class="card"><span class="em">🔬</span><h4 style="color:var(--c6)">SciPy</h4>Scientific computing</div>
+  </div>
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card"><h4>3 steps</h4><pre id="code">$ pip install -r requirements.txt
+$ python main.py</pre><p style="margin-top:10px"><button class="btn" id="cp">📋 Copy commands</button></p>
+    <pre style="margin-top:12px;color:var(--c4)">SmartSim - Main Menu
+[1] Probability   [2] Random Numbers
+[3] Distributions [4] Inventory (M,N)
+[5] Newsvendor    [6] Charts
+[7] Verification  [0] Exit</pre></div>
+    <div class="card"><h4>Key features ✨</h4><ul><li>Full lecture coverage</li><li>Direct concept application</li><li>Statistical analysis</li><li>100% match with source</li><li>Interactive charts</li><li>Flexible architecture</li></ul>
+    <div class="stats"><div class="stat"><b data-n="40" data-s="+">0</b>Python Files</div><div class="stat"><b data-n="20" data-s="+">0</b>Unit Tests</div><div class="stat"><b data-n="8">0</b>Modules</div><div class="stat"><b data-n="200" data-s="+">0</b>Ref. Pages</div></div></div>
+  </div>
+  <div class="card" style="margin-top:18px"><h4 style="color:var(--c2)">📖 References</h4><p>Banks, Carson II, Nelson, Nicol – Discrete-Event System Simulation, 5th Ed. · Law – Simulation Modeling and Analysis, 5th Ed. · Downey – Modeling and Simulation in Python · Chaturvedi – Modeling &amp; Simulation Using MATLAB · BAS221 Lecture Slides, Dr. Amr A. Hassanain</p></div>
+</section>
+
+<section id="team" class="rv">
+  <span class="tag" style="color:var(--c2);border-color:var(--c2)">THE TEAM</span><h2 style="text-align:center">Meet the Team 👥</h2><p class="sub" style="text-align:center">Students · 10 weeks · one platform 💪 (click a photo to zoom)</p>
+  <div class="team" id="tm"></div>
+</section>
+
+<section id="contact" class="rv">
+  <span class="tag" style="color:var(--c3);border-color:var(--c3)">CONTACT</span><h2>Get in touch 📬</h2><p class="sub">Questions about SmartSim? Reach us anywhere.</p>
+  <div class="ct">
+    <a class="card wa" id="wa" target="_blank"><span class="em">💬</span><b>WhatsApp</b></a>
+    <a class="card" id="mail"><span class="em">✉️</span><b>Email</b></a>
+    <a class="card" href="https://github.com/youssefsobhy13/smartsim.git" target="_blank"><span class="em"><svg viewBox="0 0 16 16" width="38" height="38" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></span><b>GitHub Repo</b></a>
+    <a class="card" href="https://github.com/youssefsobhy13/smartsim/archive/HEAD.zip"><span class="em">⬇️</span><b>Download Project (ZIP)</b></a>
+  </div>
+  <div class="card" style="margin-top:18px;max-width:640px"><h4>Send us a message on WhatsApp 🚀</h4>
+    <input id="nm" placeholder="Your name"><textarea id="ms" rows="3" placeholder="Your message"></textarea>
+    <button class="btn" id="send">💬 Send via WhatsApp</button></div>
+</section>
+<footer>Made with ❤️ by the SmartSim team · Sphinx University · BAS221 · Fall 2027<br>
+<a href="https://github.com/youssefsobhy13/smartsim" target="_blank" class="ghb"><svg viewBox="0 0 16 16" width="30" height="30" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span><small>View the project on</small><b>GitHub</b></span><i>★ youssefsobhy13/smartsim</i></a></footer>
+<button id="top" onclick="scrollTo({top:0})">⬆</button>
+
+<script>
+/* ===== EDIT THESE ===== */
+const WHATSAPP="201066781530";            // رقم الواتساب بالكود الدولي بدون +
+const EMAIL="youssef13sobhy2008@gmail.com";             // الايميل
+const TEAM=["YOUSSEF","YOSSAB","ZEYAD","JOLY","CAREN","YOSTINA","ARSANY","MARIAM","SHERY","ASMAA","KEVIN"];
+const IMG_EXT="jpg";                      // امتداد الصور: 1.jpg ... 10.jpg
+/* ====================== */
+let L="en";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+// theme
+const root=document.documentElement;
+try{const t=localStorage.getItem("th");if(t)root.dataset.theme=t}catch(e){}
+const setIcon=()=>$("#tg").textContent=root.dataset.theme==="dark"?"🌙":"☀️";setIcon();
+$("#tg").onclick=()=>{root.dataset.theme=root.dataset.theme==="dark"?"light":"dark";try{localStorage.setItem("th",root.dataset.theme)}catch(e){}setIcon()};
+// team
+$("#tm").onclick=e=>{const g=e.target.closest(".ring");if(!g)return;const was=g.classList.contains("big");$$(".ring").forEach(x=>x.classList.remove("big"));if(!was)g.classList.add("big")};
+$("#tm").innerHTML=TEAM.map((n,i)=>`<div class="mem"><div class="ring"><div class="ph">👤<img src="${i+1}.${IMG_EXT}" alt="${n}" onerror="this.remove()"></div></div><h5>${n}</h5></div>`).join("");
+// contact
+$("#wa").href="https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent("Hello! I am interested in the SmartSim project.");
+$("#mail").href="mailto:"+EMAIL+"?subject=SmartSim";
+$("#send").onclick=()=>{const n=$("#nm").value.trim(),m=$("#ms").value.trim();if(!n||!m){alert(L==="ar"?"من فضلك اكتب اسمك ورسالتك":"Please enter your name and message");return}
+open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(L==="ar"?"مرحباً فريق SmartSim!\n\nالاسم: "+n+"\nالرسالة: "+m:"Hello SmartSim team!\n\nName: "+n+"\nMessage: "+m),"_blank")};
+$("#cp").onclick=()=>{try{navigator.clipboard.writeText("pip install -r requirements.txt\npython main.py")}catch(e){}$("#cp").textContent=L==="ar"?"✅ تم النسخ!":"✅ Copied!";setTimeout(()=>$("#cp").textContent=L==="ar"?"📋 انسخ الأوامر":"📋 Copy commands",1800)};
+// typed text
+const phrA=["الاحتمالات 🎲","الأرقام العشوائية 🔮","المخزون 📦","بائع الجرائد 📰","الإحصاء 📊","تطابق 100% مع المصدر ✅"];
+const phr=["Probability 🎲","Random Numbers 🔮","Inventory 📦","Newsvendor 📰","Statistics 📊","100% Match with the Source ✅"];let pi=0,ci=0,del=0;
+(function ty(){const p=(L==="ar"?phrA:phr)[pi];$("#typed").textContent=p.slice(0,ci);if(!del&&ci++==p.length){del=1;return setTimeout(ty,1300)}if(del&&ci--==0){del=0;pi=(pi+1)%phr.length}setTimeout(ty,del?40:90)})();
+// floating emojis
+["🎲","📊","📦","📰","🧮","📈","🔮","⏱️","🐍","🎓"].forEach((e,i)=>{const s=document.createElement("span");s.className="float";s.textContent=e;s.style.cssText=`left:${5+i*10}%;animation-delay:${-i*1.9}s;animation-duration:${12+i*2}s`;document.body.appendChild(s)});
+// particles
+const cv=$("#bg"),cx=cv.getContext("2d");let P=[];
+function rs(){cv.width=innerWidth;cv.height=innerHeight;P=Array.from({length:Math.min(70,innerWidth/18)},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5}))}
+rs();addEventListener("resize",rs);
+(function an(){cx.clearRect(0,0,cv.width,cv.height);const c=getComputedStyle(root).getPropertyValue("--c1").trim();cx.fillStyle=cx.strokeStyle=c;
+P.forEach((a,i)=>{a.x=(a.x+a.vx+cv.width)%cv.width;a.y=(a.y+a.vy+cv.height)%cv.height;cx.globalAlpha=.7;cx.beginPath();cx.arc(a.x,a.y,2,0,7);cx.fill();
+for(let j=i+1;j<P.length;j++){const b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<130){cx.globalAlpha=.25*(1-d/130);cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke()}}});requestAnimationFrame(an)})();
+// reveal + counters + bars
+function count(el){const n=+el.dataset.n,d=+(el.dataset.d||0),s=el.dataset.s||"",t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/1600);el.textContent=(n*k).toFixed(d)+s;if(k<1)requestAnimationFrame(f)})(t0)}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!e.target.on){e.target.on=1;e.target.classList.add("on");e.target.querySelectorAll("[data-n]").forEach(count);e.target.querySelectorAll(".bar").forEach(b=>b.style.width=b.dataset.w+"%")}}),{threshold:.15});
+$$(".rv").forEach(r=>io.observe(r));
+addEventListener("scroll",()=>{const h=document.documentElement;$("#bar").style.width=scrollY/(h.scrollHeight-innerHeight)*100+"%";$("#top").classList.toggle("s",scrollY>500)});
+// LCG
+let M=2n**31n;$("#gen").onclick=()=>{let x=BigInt($("#seed").value||1),out="";for(let i=1;i<=10;i++){x=(1103515245n*x+12345n)%M;const rd=Number(x%100n);const d=rd==0||rd>91?4:rd<=10?0:rd<=35?1:rd<=70?2:3;out+=`<span class="chip" style="margin:3px;display:inline-block">${L==="ar"?"اليوم":"Day"} ${i}: RD ${String(rd).padStart(2,"0")} → ${L==="ar"?"الطلب":"demand"} <b style="color:var(--c4)">${d}</b></span> `}$("#lcg").innerHTML=out};
+$("#gen").click();
+// discrete-event engine
+const tr=(e,a)=>L==="ar"?a:e,FACE=["🧑","👩","👨","👧","🧔","👵"];
+let C=[],T=0,run=0,lastT=0,Tend=0;
+const set=(id,v)=>{$("#"+id).textContent=v};
+function build(){run=0;T=0;const rnd=$("#dmode").value==="rnd";let a=0,e=0;
+C=(rnd?[0,0,0,0,0,0]:[0,2,3]).map((x,i)=>{a=rnd?a+(i?1+Math.floor(Math.random()*3):0):x;const sv=rnd?3+Math.floor(Math.random()*4):5,st=Math.max(a,e);e=st+sv;return{id:i+1,a,sv,st,e,f:{}}});
+Tend=e;$("#cust").innerHTML=C.map(c=>`<div class="cu" id="cu${c.id}"><span>${FACE[c.id-1]}</span><small></small></div>`).join("");
+$("#dtb").innerHTML=C.map(c=>`<tr id="r${c.id}"><td>${FACE[c.id-1]} ${tr("Customer","العميل")} ${c.id}</td>${["a","s","w","v","d"].map(k=>`<td id="${k}${c.id}">—</td>`).join("")}<td><span class="bd w0" id="b${c.id}"></span></td></tr>`).join("");
+$("#dlog").innerHTML="";["rt","rw","rm","ru"].forEach(x=>set(x,"—"));
+$("#dplay").textContent=tr("▶️ Play","▶️ تشغيل");render()}
+function lg(t,k,ic,m){const d=document.createElement("div");d.className="ev "+k;d.innerHTML=`<i>${ic}</i><span class="tc">t = ${t.toFixed(1)}</span><span>${m}</span>`;$("#dlog").prepend(d)}
+const mn=tr=>tr("min","د"),F=v=>v.toFixed(1);
+function render(){set("dclk",F(T));let sv=null,q=0,dn=0;
+C.forEach(c=>{const el=$("#cu"+c.id),n=tr("Customer ","العميل ")+c.id,sm=el.querySelector("small");let x,o=1,st=0;
+const arr=()=>{if(!c.f.a){c.f.a=1;set("a"+c.id,F(c.a));lg(c.a,"a","🚪",n+tr(" arrives"," يصل"))}},
+ srt=()=>{arr();if(!c.f.s){c.f.s=1;set("s"+c.id,F(c.st));set("w"+c.id,F(c.st-c.a));set("v"+c.id,F(c.sv));lg(c.st,"s","▶️",n+tr(` starts service (waited ${F(c.st-c.a)} min)`,` يبدأ الخدمة (انتظر ${F(c.st-c.a)} دقيقة)`))}};
+if(T<c.a){x=3;o=0;sm.textContent=""}
+else if(T<c.st){arr();q++;st=1;const k=C.filter(p=>p.id<c.id&&T>=p.a&&T<p.st).length;x=50-k*9;sm.textContent="C"+c.id+" ⏳"}
+else if(T<c.e){srt();st=2;x=57;sv=c;sm.textContent=F(c.e-T)+" "+mn(tr)}
+else{srt();st=3;dn++;x=90;sm.textContent="OUT";if(!c.f.e){c.f.e=1;set("d"+c.id,F(c.e));lg(c.e,"d","✅",n+tr(" departs → OUT"," يغادر ← خروج"))}}
+el.style.left=x+"%";el.style.opacity=o;el.classList.toggle("sv",c===sv);
+const bd=$("#b"+c.id);bd.className="bd w"+st;bd.textContent=[tr("Not arrived","لم يصل"),tr("Waiting","ينتظر"),tr("In service","في الخدمة"),tr("Done ✅","انتهى ✅")][st];
+$("#r"+c.id).classList.toggle("act",st==2)});
+set("kserv",sv?(tr("Customer ","العميل ")+sv.id):"—");set("kq",q);set("kdone",dn+" / "+C.length);
+$("#pgb").style.width=sv?((T-sv.st)/sv.sv*100)+"%":"0"}
+function tick(t){if(!run)return;T=Math.min(Tend,T+(t-lastT)/1000*1.7*(+$("#dspd").value));lastT=t;render();
+if(T>=Tend){run=0;$("#dplay").textContent=tr("▶️ Play","▶️ تشغيل");const w=C.map(c=>c.st-c.a),busy=C.reduce((p,c)=>p+c.sv,0);
+set("rt",F(Tend)+" "+mn(tr));set("rw",(w.reduce((p,x)=>p+x,0)/C.length).toFixed(2)+" "+mn(tr));set("rm",F(Math.max(...w))+" "+mn(tr));set("ru",Math.round(busy/Tend*100)+"%")}else requestAnimationFrame(tick)}
+$("#dplay").onclick=()=>{if(T>=Tend)build();run=!run;$("#dplay").textContent=run?tr("⏸ Pause","⏸ إيقاف"):tr("▶️ Play","▶️ تشغيل");if(run){lastT=performance.now();requestAnimationFrame(tick)}};
+$("#dreset").onclick=build;$("#dmode").onchange=build;build();
+// ---------- Probability: die events ----------
+let EV=new Set([2,4,6]),cnt=[0,0,0,0,0,0,0],rn=0;
+function drawDie(){$("#dsel").innerHTML=[1,2,3,4,5,6].map(n=>`<span class="dd${EV.has(n)?" on":""}" data-n="${n}">${n}</span>`).join("");
+const k=EV.size,e=[...EV].sort().join(",");$("#evf").innerHTML=`E = {${e}} → P(E) = ${k}/6 = ${(k/6).toFixed(3)} = ${(k/6*100).toFixed(1)}%`;
+const mx=Math.max(1,...cnt);$("#dh").innerHTML=[1,2,3,4,5,6].map(n=>`<div class="hb"><i class="${EV.has(n)?"on":""}" style="height:${cnt[n]/mx*70}px"></i><small>${n}</small><small>${cnt[n]}</small></div>`).join("");
+const hit=[...EV].reduce((p,n)=>p+cnt[n],0);
+$("#evo").textContent=rn?tr(`Observed: ${hit}/${rn} = ${(hit/rn*100).toFixed(1)}% · Theory: ${(k/6*100).toFixed(1)}%`,`المُلاحَظ: ${hit}/${rn} = ${(hit/rn*100).toFixed(1)}% · النظرية: ${(k/6*100).toFixed(1)}%`):tr("Roll the die to compare with theory","ارمِ النرد للمقارنة مع النظرية")}
+$("#dsel").onclick=e=>{const n=+e.target.dataset.n;if(!n)return;EV.has(n)?EV.delete(n):EV.add(n);drawDie()};
+$$("[data-ev]").forEach(b=>b.onclick=()=>{EV=new Set(b.dataset.ev.split(",").filter(Boolean).map(Number));drawDie()});
+const roll=k=>{for(let i=0;i<k;i++){cnt[1+Math.floor(Math.random()*6)]++;rn++}drawDie()};
+$("#r1").onclick=()=>roll(1);$("#r100").onclick=()=>roll(100);$("#rrst").onclick=()=>{cnt=[0,0,0,0,0,0,0];rn=0;drawDie()};
+// ---------- two coins ----------
+let cc=[0,0,0],cn=0,last="";
+function drawC(){const th=[.25,.5,.25];$("#cs").innerHTML=[0,1,2].map(i=>{const f=cn?cc[i]/cn:0,x=40+i*90;return `<rect x="${x}" y="${120-f*110}" width="60" height="${f*110}" rx="6" fill="#34d399"/><line x1="${x-6}" x2="${x+66}" y1="${120-th[i]*110}" y2="${120-th[i]*110}" stroke="#fbbf24" stroke-width="3" stroke-dasharray="5"/><text x="${x+30}" y="138" text-anchor="middle">X=${i}</text><text x="${x+30}" y="${114-f*110}" text-anchor="middle" style="fill:var(--tx)">${f.toFixed(2)}</text>`}).join("")+`<text x="150" y="12" text-anchor="middle" style="fill:#fbbf24">- - ${tr("theory","النظرية")}: 1/4 · 1/2 · 1/4</text>`;
+const m=cn?(cc[1]+2*cc[2])/cn:0,v=cn?(cc[1]+4*cc[2])/cn-m*m:0;
+$("#cst").textContent=`n = ${cn} · ${tr("observed","المُلاحَظ")} E[X] = ${m.toFixed(2)}, V(X) = ${v.toFixed(2)} · ${tr("theory","النظرية")} E[X] = 1, V(X) = 0.5`;$("#coins").textContent=last||"🪙 🪙"}
+const flip=k=>{for(let i=0;i<k;i++){const a=Math.random()<.5,b=Math.random()<.5,h=a+b;cc[h]++;cn++;last=`${a?"👑":"🦅"} ${b?"👑":"🦅"} → X = ${h}`}drawC()};
+$("#f1").onclick=()=>flip(1);$("#f100").onclick=()=>flip(100);$("#frst").onclick=()=>{cc=[0,0,0];cn=0;last="";drawC()};
+// ---------- exponential ----------
+function drawE(){const a=+$("#as").value,inf=$("#binf").checked,b=Math.max(a,+$("#bs").value);$("#bs").disabled=inf;$("#av").textContent=a.toFixed(1);$("#bv").textContent=inf?"∞":b.toFixed(1);
+const X=x=>20+x/6*290,Yp=y=>140-y*125,bb=inf?6:b;let pth="",ar=`M${X(a)} 140`,cp="";
+for(let x=0;x<=6.001;x+=.05){pth+=(x?"L":"M")+X(x)+" "+Yp(Math.exp(-x));cp+=(x?"L":"M")+X(x)+" "+Yp(1-Math.exp(-x))}
+for(let x=a;x<=bb+.001;x+=.05)ar+=`L${X(x)} ${Yp(Math.exp(-x))}`;ar+=`L${X(bb)} 140Z`;
+const Fa=1-Math.exp(-a),Fb=inf?1:1-Math.exp(-b),ax='<line x1="20" x2="310" y1="140" y2="140" stroke="var(--line)"/><text x="20" y="154">0</text><text x="300" y="154">6</text>';
+$("#pdf").innerHTML=`<path d="${ar}" fill="#a78bfa" opacity=".55"/><path d="${pth}" fill="none" stroke="#a78bfa" stroke-width="3"/>${ax}<text x="30" y="14">PDF  f(x) = e⁻ˣ</text>`;
+$("#cdf").innerHTML=`<path d="${cp}" fill="none" stroke="#34d399" stroke-width="3"/>${ax}<line x1="${X(a)}" x2="${X(a)}" y1="140" y2="${Yp(Fa)}" stroke="#fbbf24" stroke-dasharray="4"/><circle cx="${X(a)}" cy="${Yp(Fa)}" r="5" fill="#fbbf24"/><line x1="${X(bb)}" x2="${X(bb)}" y1="140" y2="${Yp(Fb)}" stroke="#fb7185" stroke-dasharray="4"/><circle cx="${X(bb)}" cy="${Yp(Fb)}" r="5" fill="#fb7185"/><text x="30" y="14">CDF  F(x) = 1 − e⁻ˣ</text>`;
+$("#pr").innerHTML=`P(${a.toFixed(1)} ≤ X ≤ ${inf?"∞":b.toFixed(1)}) = F(b) − F(a) = ${Fb.toFixed(6)} − ${Fa.toFixed(6)} = <b>${(Fb-Fa).toFixed(6)}</b>`}
+["as","bs","binf"].forEach(x=>$("#"+x).oninput=drawE);
+$$("[data-pe]").forEach(b=>b.onclick=()=>{const[p,q,f]=b.dataset.pe.split(",");$("#as").value=p;$("#bs").value=q;$("#binf").checked=f=="1";drawE()});
+// ---------- Inventory (M,N) ----------
+const BOOK=[[1,1,"3",24,1,2,"Order due"],[1,2,"2+8",35,1,9,"Arrived"],[1,3,"9",65,2,7,""],[1,4,"7",81,3,4,""],[1,5,"4",54,2,2,"Order 9, LT 1"],[2,1,"2+9","03",0,11,"Arrived"],[2,2,"11",87,3,8,""],[2,3,"8",27,1,7,""],[2,4,"7",47,2,5,""],[2,5,"5",70,2,2,"Order 9, LT 3"],[3,1,"2",30,2,0,""],[3,2,"0",30,2,0,"Shortage 2"],[3,3,"0",30,2,0,"Shortage 4"],[3,4,"0+9-4",17,1,4,"Arrived"],[3,5,"4","09",0,4,"Order 7, LT 1"],[4,1,"4+7",42,2,9,"Arrived"],[4,2,"9",87,3,6,""],[4,3,"6",26,1,5,""],[4,4,"5",36,2,3,""],[4,5,"3",40,2,1,"Order 10, LT 1"],[5,1,"1+10","03",0,11,"Arrived"],[5,2,"11",63,2,9,""],[5,3,"9",19,1,8,""],[5,4,"8",88,3,5,""],[5,5,"5",94,4,1,""]];
+BOOK.forEach(r=>r[7]=/^Shortage/.test(r[6]));
+const nt=t=>L==="ar"?t.replace("Order due","موعد الطلب").replace("Arrived","وصلت الطلبية").replace("Shortage","عجز").replace("Order","طلب").replace("LT","مدة التوريد"):t;
+function genRand(M,N,cy){let inv=3,back=0,pend={day:2,q:8};const rows=[],dem=rd=>rd==0||rd>91?4:rd<=10?0:rd<=35?1:rd<=70?2:3;
+for(let c=1;c<=cy;c++)for(let d=1;d<=N;d++){const g=(c-1)*N+d,nts=[];let bg=""+inv;
+if(pend&&pend.day==g){bg=`${inv}+${pend.q}`+(back?`-${back}`:"");inv=inv+pend.q-back;back=0;pend=null;nts.push("Arrived")}
+const rd=Math.floor(Math.random()*100),dd=dem(rd);let sh=0;if(dd>inv){sh=dd-inv;back+=sh;inv=0}else inv-=dd;
+if(sh)nts.push("Shortage "+back);
+if(d==N){const q=M-inv+back,x=Math.floor(Math.random()*10),lt=x==0?3:x<=6?1:2;pend={day:c*N+lt,q};nts.push(`Order ${q}, LT ${lt}`)}
+rows.push([c,d,bg,String(rd).padStart(2,"0"),dd,inv,nts.join(" · "),sh>0])}return rows}
+let IV={rows:BOOK,k:25,M:11,N:5,mode:"book"},IT;
+function invDraw(){const R=IV.rows,k=IV.k,M=IV.M,n=R.length,ends=R.slice(0,k).map(r=>r[5]),ym=Math.max(M,...R.map(r=>r[5]))+1,X=i=>40+i*(650/Math.max(1,n-1)),Y=v=>230-v/ym*210;
+let sv=`<line x1="40" x2="690" y1="${Y(M)}" y2="${Y(M)}" stroke="#fbbf24" stroke-dasharray="6"/><text x="640" y="${Y(M)-5}" style="fill:#fbbf24">M = ${M}</text><text x="14" y="${Y(0)+4}">0</text><text x="8" y="${Y(M)+4}">${M}</text>`;
+R.forEach((r,i)=>{if(i&&r[1]==1)sv+=`<line x1="${X(i-.5)}" x2="${X(i-.5)}" y1="20" y2="230" stroke="var(--line)" stroke-dasharray="3"/>`;if(i%5==0)sv+=`<text x="${X(i)}" y="252" text-anchor="middle">${i+1}</text>`});
+if(k)sv+=`<path fill="none" stroke="#38bdf8" stroke-width="3" d="M${ends.map((v,i)=>X(i)+" "+Y(v)).join("L")}"/>`;
+ends.forEach((v,i)=>sv+=`<circle data-i="${i}" cx="${X(i)}" cy="${Y(v)}" r="${R[i][7]?7:4.5}" fill="${R[i][7]?"#fb7185":"#38bdf8"}" style="cursor:pointer"/>`);
+$("#inv").innerHTML=sv;$$("#inv circle").forEach(c=>c.onmouseover=()=>{const r=R[c.dataset.i];$("#tip").textContent=`${tr("Day","اليوم")} ${+c.dataset.i+1} (${tr("cycle","دورة")} ${r[0]}): ${tr("demand","الطلب")} ${r[4]} → ${tr("ending inventory","المخزون النهائي")} = ${r[5]}${r[7]?" ⚠️":""}`});
+$("#itb").innerHTML=R.slice(0,k).map(r=>`<tr class="${r[7]?"sh":""}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td>${nt(r[6])||"-"}</td></tr>`).join("");
+const tot=ends.reduce((p,v)=>p+v,0),sd=R.slice(0,k).filter(r=>r[7]).length;
+[k?tot:"—",k?(tot/k).toFixed(1):"—",k?sd:"—",k?Math.round(sd/k*100)+"%":"—",k?Math.round((1-sd/k)*100)+"%":"—"].forEach((v,i)=>$("#im"+(i+1)).textContent=v);
+$("#ihint").textContent=IV.mode==="book"?tr("Replaying the lecture example (Pages 94-107): M = 11, N = 5, initial inventory 3, an order of 8 arriving on day 2.","إعادة مثال المحاضرة (صفحات 94-107): M = 11 و N = 5 والمخزون الابتدائي 3 وطلبية 8 تصل في اليوم 2."):tr("Random run: demand from the Page-86 table, lead time from the Page-88 table. At the end of each N-day cycle we order M − inventory + backlog; it arrives at the start of day LT of the next cycle.","تشغيل عشوائي: الطلب من جدول صفحة 86 ومدة التوريد من جدول صفحة 88. في نهاية كل دورة من N يوماً نطلب M − المخزون + المتأخر وتصل في بداية اليوم LT من الدورة التالية.")}
+function invPlay(rows,M,N,mode){clearInterval(IT);IV={rows,k:0,M,N,mode};invDraw();IT=setInterval(()=>{IV.k++;invDraw();$(".tw").scrollTop=1e5;if(IV.k>=rows.length)clearInterval(IT)},220)}
+const rndRun=()=>{const M=+$("#Ms").value,N=+$("#Ns").value,C=+$("#Cs").value;invPlay(genRand(M,N,C),M,N,"rnd")};
+$("#ibook").onclick=()=>{$("#Ms").value=11;$("#Ns").value=5;$("#Cs").value=5;["M","N","C"].forEach(x=>$("#"+x+"v").textContent=$("#"+x+"s").value);invPlay(BOOK,11,5,"book")};
+$("#irnd").onclick=rndRun;
+["M","N","C"].forEach(x=>$("#"+x+"s").oninput=()=>{$("#"+x+"v").textContent=$("#"+x+"s").value;rndRun()});
+// ---------- Newsvendor ----------
+const nd=rd=>rd<35?["Good",40]:rd<80?["Fair",50]:["Poor",60],pf=(d,q)=>Math.min(d,q)*.5-q*.33,QS=[40,50,60];let NR=[];
+function newsSim(){NR=Array.from({length:+$("#nds").value},()=>Math.floor(Math.random()*100));newsDraw()}
+function newsDraw(){if(!NR.length)return;const av=QS.map(q=>NR.reduce((p,r)=>p+pf(nd(r)[1],q),0)/NR.length),th=QS.map(q=>.35*pf(40,q)+.45*pf(50,q)+.2*pf(60,q)),bi=av.indexOf(Math.max(...av)),mx=Math.max(...av),cl=["var(--c4)","var(--c4)","var(--c5)"];cl[bi]="var(--c3)";
+$("#nbars").innerHTML=QS.map((q,i)=>`<div class="nb"><b>${tr("Order","اطلب")} ${q} ${i==bi?tr("⭐ OPTIMAL","⭐ الأمثل"):""}</b><div class="bar" data-w="${av[i]/mx*92}" style="background:${cl[i]}">$${av[i].toFixed(2)}</div><small>${tr("theory","النظرية")}: $${th[i].toFixed(2)}</small></div>`).join("");
+setTimeout(()=>$$("#nbars .bar").forEach(b=>b.style.width=b.dataset.w+"%"),30);
+const q=+$("#nq").value;let t=0;$("#ntb").innerHTML=NR.slice(0,10).map((rd,i)=>{const[ty,d]=nd(rd),p=pf(d,q);t+=p;return `<tr><td>${i+1}</td><td>${String(rd).padStart(2,"0")}</td><td>${tr(ty,{Good:"جيد",Fair:"متوسط",Poor:"ضعيف"}[ty])}</td><td>${d}</td><td>${Math.min(d,q)}</td><td>${Math.max(q-d,0)}</td><td>${Math.max(d-q,0)}</td><td>$${p.toFixed(2)}</td></tr>`}).join("")+`<tr><td colspan="7"><b>${tr("Average of these 10 days","متوسط هذه الأيام العشرة")}</b></td><td><b>$${(t/10).toFixed(2)}</b></td></tr>`}
+$("#nds").oninput=()=>$("#ndv").textContent=$("#nds").value;$("#nsim").onclick=newsSim;$("#nq").onchange=newsDraw;
+// ---------- LLN & CLT ----------
+let LL=[],CL=[];const tv=n=>1.96+2.4/(n-1);
+function llDraw(){if(!LL.length)return;const n=LL.length,st=Math.max(1,Math.floor(n/150));let sm=0,sq=0;const pts=[],up=[],lo=[],X=i=>30+i/n*300,Y=v=>155-(Math.min(6,Math.max(1,v))-1)/5*135;
+for(let i=1;i<=n;i++){const x=LL[i-1];sm+=x;sq+=x*x;if(i%st==0||i==n){const m=sm/i;pts.push([i,m]);if(i>1){const h=tv(i)*Math.sqrt(Math.max(0,(sq-i*m*m)/(i-1))/i);up.push([i,m+h]);lo.push([i,m-h])}}}
+const P=a=>a.map((p,i)=>(i?"L":"M")+X(p[0])+" "+Y(p[1])).join("");
+$("#llsvg").innerHTML=`<path d="${P(up)}L${lo.slice().reverse().map(p=>X(p[0])+" "+Y(p[1])).join("L")}Z" fill="#38bdf8" opacity=".25"/><line x1="30" x2="330" y1="${Y(3.5)}" y2="${Y(3.5)}" stroke="#34d399" stroke-dasharray="5"/><path d="${P(pts)}" fill="none" stroke="#38bdf8" stroke-width="2.5"/>`+[1,3.5,6].map(v=>`<text x="4" y="${Y(v)+4}">${v}</text>`).join("")+`<text x="250" y="${Y(3.5)-6}" style="fill:#34d399">mean = 3.5</text>`;
+const m=sm/n,s=Math.sqrt((sq-n*m*m)/(n-1)),h=tv(n)*s/Math.sqrt(n);
+$("#llr").innerHTML=`n = ${n} · x̄ = ${m.toFixed(3)} · s = ${s.toFixed(3)}<br>95% CI = [${(m-h).toFixed(3)}, ${(m+h).toFixed(3)}] · ${tr("contains true mean 3.5","يحتوي المتوسط الحقيقي 3.5")} ${m-h<=3.5&&3.5<=m+h?"✓":"✗"}`}
+function cltDraw(){if(!CL.length)return;const R=CL.length,B=13,c=Array(B).fill(0);CL.forEach(m=>{const b=Math.floor((m-2.2)/.2);if(b>=0&&b<B)c[b]++});
+const sd=1.7078/Math.sqrt(30),pdf=x=>Math.exp(-((x-3.5)**2)/(2*sd*sd))/(sd*Math.sqrt(2*Math.PI))*R*.2,mx=Math.max(...c,pdf(3.5)),X=x=>30+(x-2.2)/2.6*300,Y=v=>150-v/mx*130;
+let cv="";for(let x=2.2;x<=4.8;x+=.05)cv+=(x>2.2?"L":"M")+X(x)+" "+Y(pdf(x));
+$("#cltsvg").innerHTML=c.map((v,i)=>`<rect x="${X(2.2+i*.2)+1}" y="${Y(v)}" width="${300/B-2}" height="${150-Y(v)}" fill="#34d399" opacity=".8" rx="3"/>`).join("")+`<path d="${cv}" fill="none" stroke="#fbbf24" stroke-width="3"/><line x1="30" x2="330" y1="150" y2="150" stroke="var(--line)"/>`+[2.5,3.5,4.5].map(x=>`<text x="${X(x)}" y="165" text-anchor="middle">${x}</text>`).join("");
+const m=CL.reduce((p,x)=>p+x,0)/R,s=Math.sqrt(CL.reduce((p,x)=>p+(x-m)**2,0)/(R-1));
+$("#clr").textContent=`${tr("Mean of means","متوسط المتوسطات")} = ${m.toFixed(3)} (3.5) · ${tr("std","الانحراف")} = ${s.toFixed(3)} (${sd.toFixed(3)}) · ${tr("yellow curve = Normal","المنحنى الأصفر = توزيع طبيعي")}`}
+$("#lns").oninput=()=>$("#lnv").textContent=$("#lns").value;$("#cls").oninput=()=>$("#clv").textContent=$("#cls").value;
+$("#lln").onclick=()=>{LL=Array.from({length:+$("#lns").value},()=>1+Math.floor(Math.random()*6));llDraw()};
+$("#clt").onclick=()=>{CL=Array.from({length:+$("#cls").value},()=>{let t=0;for(let i=0;i<30;i++)t+=1+Math.floor(Math.random()*6);return t/30});cltDraw()};
+// ---------- live verification ----------
+const nsh=BOOK.filter(r=>r[7]).length,VER=[["Avg Inventory","3.5",()=>(BOOK.reduce((p,r)=>p+r[5],0)/BOOK.length).toFixed(1)],["Shortage Days","2",()=>""+nsh],["Service Level","92%",()=>Math.round((1-nsh/BOOK.length)*100)+"%"],["Newspaper (40)","$6.80",()=>"$"+(.35*pf(40,40)+.45*pf(50,40)+.2*pf(60,40)).toFixed(2)],["P(X<1) Exp","0.6321",()=>(1-Math.exp(-1)).toFixed(4)],["P(1≤X<2.5)","0.2858",()=>(Math.exp(-1)-Math.exp(-2.5)).toFixed(4)],["P(X≥3)","0.0498",()=>Math.exp(-3).toFixed(4)]];
+$("#vtb").innerHTML=VER.map((v,i)=>`<tr><td>${v[0]}</td><td>${v[1]}</td><td id="vc${i}">—</td><td id="vm${i}">—</td></tr>`).join("");
+$("#vrun").onclick=()=>{const bar=$("#vbar");bar.style.width="0";bar.textContent="";let ok=0;VER.forEach((v,i)=>{$("#vc"+i).textContent="…";$("#vm"+i).textContent="…";setTimeout(()=>{const c=v[2](),m=c===v[1];ok+=m;$("#vc"+i).textContent=c;$("#vm"+i).textContent=m?"✓":"✗";if(i==VER.length-1){const p=Math.round(ok/VER.length*100);bar.dataset.w=p;bar.style.width=p+"%";bar.textContent=tr(`${p}% match with source`,`تطابق ${p}% مع المصدر`)+" 🎉"}},350*(i+1))})};
+
+// ---------- Bank (discrete-event) ----------
+const ex=m=>Math.max(.5,Math.round(-Math.log(1-Math.random())*m*10)/10);let B;
+function bkArr(t){B.gen++;B.fel.push({t,k:"A",c:B.gen})}
+function bkNew(){if(B)clearInterval(B.iv);B={t:0,fel:[],q:[],tl:Array(+$("#bkT").value).fill(null),gen:0,n:+$("#bkN").value,done:[],w:[],mq:0,log:[],iv:0};bkArr(ex(+$("#bkA").value));$("#bkPlay").textContent=tr("▶️ Play","▶️ تشغيل");bkDraw()}
+function bkSrv(c,i){c.st=B.t;c.sv=ex(+$("#bkS").value);B.w.push(c.st-c.a);B.tl[i]=c;B.fel.push({t:B.t+c.sv,k:"D",c:c.id,tl:i})}
+function bkStep(){if(!B.fel.length)return false;B.fel.sort((a,b)=>a.t-b.t||(a.k=="D"?-1:1));const e=B.fel.shift();B.t=e.t;let m;
+if(e.k=="A"){const c={id:e.c,a:e.t};if(B.gen<B.n)bkArr(B.t+ex(+$("#bkA").value));const f=B.tl.indexOf(null);
+if(f>=0){bkSrv(c,f);m=tr(`Customer ${c.id} arrives, teller ${f+1} is free → service starts at once`,`العميل ${c.id} وصل والموظف ${f+1} فاضي ← الخدمة تبدأ فوراً`)}
+else{B.q.push(c);B.mq=Math.max(B.mq,B.q.length);m=tr(`Customer ${c.id} arrives, all tellers busy → joins the queue (length ${B.q.length})`,`العميل ${c.id} وصل وكل الموظفين مشغولين ← يدخل الطابور (الطول ${B.q.length})`)}}
+else{const c=B.tl[e.tl];B.tl[e.tl]=null;B.done.push(c);m=tr(`Customer ${c.id} leaves, teller ${e.tl+1} becomes free`,`العميل ${c.id} يغادر والموظف ${e.tl+1} بقى فاضي`);
+if(B.q.length){const x=B.q.shift();bkSrv(x,e.tl);m+=tr(` · next in line, Customer ${x.id}, starts (waited ${(B.t-x.a).toFixed(1)})`,` · التالي في الطابور العميل ${x.id} يبدأ (انتظر ${(B.t-x.a).toFixed(1)})`)}}
+B.log.unshift([B.t,e.k,m]);bkDraw();return true}
+function bkDraw(){const F=v=>v.toFixed(1),T=B.tl.length,a=+$("#bkA").value,sv=+$("#bkS").value,rho=sv/(T*a);set("bkClk",F(B.t));
+$("#bkRho").innerHTML=`ρ = ${tr("service","الخدمة")} / (${tr("tellers","الموظفين")} × ${tr("gap","الفاصل")}) = ${sv} / (${T} × ${a}) = <b style="color:${rho>=1?"var(--c5)":"var(--c3)"}">${rho.toFixed(2)}</b> — ${rho>=1?tr("overloaded: the queue keeps growing, add tellers!","النظام محمّل زيادة: الطابور هيكبر، زوّد الموظفين!"):tr("stable: the bank can keep up","النظام مستقر: البنك قادر يلحق")}`;
+$("#bkF").innerHTML=B.fel.slice().sort((x,y)=>x.t-y.t).map((e,i)=>`<span class="chip" style="border-color:${e.k=="A"?"var(--c1)":"var(--c3)"}">${e.k}${e.c} @ ${F(e.t)}${i?"":" ⬅"}</span>`).join("")||tr("empty — simulation finished ✅","فارغة — انتهت المحاكاة ✅");
+$("#bkTl").innerHTML=B.tl.map((c,i)=>`<div class="chip" style="min-width:170px">🧑‍💼 ${tr("Teller","موظف")} ${i+1}: ${c?FACE[c.id%6]+" C"+c.id+" → "+F(c.st+c.sv):"💤 "+tr("free","فاضي")}</div>`).join("");
+$("#bkQ").innerHTML=B.q.map(c=>`<span class="chip">${FACE[c.id%6]} C${c.id}</span>`).join("")||"—";
+set("bk1",B.done.length+" / "+B.n);set("bk2",B.w.length?(B.w.reduce((p,x)=>p+x,0)/B.w.length).toFixed(2):"—");set("bk3",B.mq);set("bk4",B.t?Math.round(B.done.reduce((p,c)=>p+c.sv,0)/(T*B.t)*100)+"%":"—");
+$("#bkLog").innerHTML=B.log.slice(0,10).map(l=>`<div><b>t = ${F(l[0])}</b>${l[1]=="A"?"🚪":"✅"} ${l[2]}</div>`).join("")}
+$("#bkStep").onclick=()=>bkStep();$("#bkRst").onclick=bkNew;
+$("#bkPlay").onclick=()=>{if(B.iv){clearInterval(B.iv);B.iv=0;$("#bkPlay").textContent=tr("▶️ Play","▶️ تشغيل");return}if(!B.fel.length)bkNew();$("#bkPlay").textContent=tr("⏸ Pause","⏸ إيقاف");B.iv=setInterval(()=>{if(!bkStep()){clearInterval(B.iv);B.iv=0;$("#bkPlay").textContent=tr("▶️ Play","▶️ تشغيل")}},650)};
+[["T","Tv"],["A","Av"],["S","Sv"],["N","Nv"]].forEach(([a,b])=>$("#bk"+a).oninput=()=>{$("#bk"+b).textContent=$("#bk"+a).value;bkNew()});
+// ---------- Clickable modules & phases ----------
+const MI={"main.py":["The main menu: one command runs every module.","القائمة الرئيسية: أمر واحد بيشغّل كل الوحدات.","#lab"],"config/":["Shared settings: seeds, probability tables, constants.","الإعدادات المشتركة: البذور وجداول الاحتمالات والثوابت.",""],"core/":["The simulation clock and the event list used by the bank, inventory and newspaper models.","ساعة المحاكاة وقائمة الأحداث المستخدمة في البنك والمخزون والجرائد.","#bank"],"module1_probability":["Sample spaces, events, probability rules and Bayes.","فضاءات العينة والأحداث وقواعد الاحتمال وبايز.","#concepts"],"module2_random":["Linear congruential generator and the inverse-transform method.","مولّد LCG وطريقة التحويل العكسي.","#lab"],"module3_distributions":["PMF, PDF and CDF of discrete and continuous variables.","دوال الكتلة والكثافة والتجميع للمتغيرات المنفصلة والمتصلة.","#concepts"],"module4_inventory":["The (M,N) inventory policy with random demand and lead time.","سياسة المخزون (M,N) مع طلب ومدة توريد عشوائيين.","#inventory"],"module5_newspaper":["The newsvendor problem: which order size earns the most profit.","مسألة بائع الجرائد: أي كمية طلب تحقق أكبر ربح.","#news"],"module6_statistics":["Confidence intervals, LLN, CLT and variance reduction.","فترات الثقة وقانون الأعداد الكبيرة ونظرية النهاية المركزية وتقليل التباين.","#stats"],"module7_visualization":["Plots and the interactive dashboard.","الرسوم واللوحة التفاعلية.","#stats"],"module8_validation":["Compares every computed number with the lecture value.","بيقارن كل رقم محسوب بقيمة المحاضرة.","#stats"],"tests/":["Unit tests that protect the code from silent mistakes.","اختبارات وحدة بتحمي الكود من الأخطاء الصامتة.","#stats"]};
+const PI={P1:"module1_probability",P2:"module1_probability",P3:"module3_distributions",P4:"module2_random",P5:"core/",P6:"module4_inventory",P7:"module4_inventory",P8:"module5_newspaper",P9:"module6_statistics",P10:"module7_visualization"};
+function info(id,k,d){$("#"+id).innerHTML=`<h4 style="color:var(--c1)">${k}</h4><p>${tr(d[0],d[1])}</p>`+(d[2]?`<p style="margin-top:10px"><a class="btn" href="${d[2]}" style="text-decoration:none;display:inline-block">${tr("👀 See it live","👀 شوفه شغال")}</a></p>`:"")}
+$$("#structure .mod").forEach(c=>c.onclick=()=>{$$("#structure .mod").forEach(x=>x.classList.remove("sel"));c.classList.add("sel");const k=c.firstChild.textContent.trim();info("mi",k,MI[k])});
+$$("#structure .phases .chip").forEach(c=>c.onclick=()=>{const k=c.textContent.trim(),m=PI[k.split(" ")[0]];info("pi",k,MI[m])});
+function relang(){bkDraw();drawDie();drawC();drawE();invDraw();newsDraw();llDraw();cltDraw()}
+drawDie();drawC();drawE();invDraw();newsSim();bkNew();
+/* ===== Language (English default, Arabic on click) ===== */
+const AR={'Bank':'البنك','DISCRETE EVENTS':'الأحداث المنفصلة','Bank Simulator':'محاكي البنك','The clock jumps from one event to the next. Nothing happens in between. Press “Next event” and watch.':'الساعة بتقفز من حدث للتاني ومفيش حاجة بتحصل بينهم. اضغط «الحدث التالي» وشوف.','A = Arrival':'A = وصول','Teller free? serve : wait':'الموظف فاضي؟ خدمة : انتظار','D = Departure':'D = مغادرة','Next in queue starts':'التالي في الطابور يبدأ','Tellers =':'عدد الموظفين =','Arrival gap =':'الفاصل بين الوصول =','Service =':'مدة الخدمة =','Customers =':'العملاء =','Next event':'الحدث التالي','New run':'تشغيل جديد','Future Event List (FEL)':'قائمة الأحداث القادمة (FEL)','Tellers':'الموظفون','Waiting queue':'طابور الانتظار','Served':'تمت خدمتهم','Max queue':'أقصى طابور','Teller busy':'انشغال الموظفين','Event log':'سجل الأحداث','Click any module to see what it does':'اضغط على أي وحدة لتعرف وظيفتها','Click any phase task to see what the student builds':'اضغط على أي مهمة لتعرف إيه اللي الطالب بيبنيه',
+'Idea':'الفكرة','Concepts':'المفاهيم','Live Lab':'المعمل','Inventory':'المخزون','Newsvendor':'بائع الجرائد','Team':'الفريق','Contact':'تواصل',
+'Integrated Educational Simulation Platform':'منصة محاكاة تعليمية متكاملة','Sphinx University':'جامعة سفنكس','Dr. Amr A. Hassanain':'د. عمرو أ. حسنين','Fall 2027':'خريف 2027','Team of 10 Students':'فريق من 10 طلاب','Modeling & Simulation Project | BAS221':'مشروع النمذجة والمحاكاة | BAS221','Try the Live Lab':'جرّب المعمل التفاعلي','View the project on':'شاهد المشروع على',
+'INTRODUCTION':'مقدمة','CORE CONCEPTS':'المفاهيم الأساسية','LIVE LAB':'المعمل التفاعلي','APPLICATIONS':'التطبيقات','ANALYSIS':'التحليل','WRAP-UP':'الخلاصة','THE TEAM':'الفريق','CONTACT':'تواصل',
+'Project Idea':'فكرة المشروع','From theory to practice':'من النظرية إلى التطبيق','The Problem':'المشكلة','Theory is hard without practice':'النظرية صعبة بدون تطبيق','No link between chapters':'لا يوجد ربط بين الفصول','Complex systems are hard to analyze':'الأنظمة المعقدة يصعب تحليلها','The Solution':'الحل','One integrated Python application':'تطبيق بايثون واحد متكامل','Full coverage of Chapter 1 & 2':'تغطية كاملة للفصلين 1 و2','Hands-on apps: inventory + newsvendor':'تطبيقات عملية: المخزون وبائع الجرائد','Results match the lectures':'النتائج تطابق المحاضرات',
+'Student + Book + Computer ➜ Better Understanding ➜ Real Application':'طالب + كتاب + كمبيوتر ➜ 🧠 فهم أفضل ➜ 🏭 تطبيق حقيقي',
+'Project Goals':'أهداف المشروع','Six goals, one platform':'ستة أهداف، منصة واحدة','Educational':'تعليمي','Understand concepts theoretically':'فهم المفاهيم نظرياً','Practical':'عملي','Apply simulation hands-on':'تطبيق المحاكاة عملياً','Analytical':'تحليلي','Analyze results statistically':'تحليل النتائج إحصائياً','Integration':'التكامل','Link chapters together':'ربط الفصول ببعضها','Validation':'التحقق','Match results with the source':'مطابقة النتائج مع المصدر','Scalability':'قابلية التوسع','Easy to extend and maintain':'سهل التطوير والصيانة',
+'Project Structure':'هيكل المشروع','8 modules + tests':'8 وحدات + اختبارات','Entry point':'نقطة البداية','Settings':'الإعدادات','Simulation engine':'محرك المحاكاة','Sample spaces, rules, Bayes':'فضاءات العينة والقواعد وبايز','LCG, inverse transform':'LCG والتحويل العكسي','(M,N) system':'نظام (M,N)','Newsvendor problem':'مسألة بائع الجرائد','CI, CLT, variance':'فترات الثقة وCLT والتباين','Plots + dashboard':'رسوم + لوحة تحكم','Source comparison':'مقارنة بالمصدر','Unit tests':'اختبارات الوحدة',
+'Workflow Map':'خريطة العمل','10 weeks, 10 team members':'10 أسابيع و10 أعضاء','PHASE 1 · Foundations':'المرحلة 1 · الأساسيات','PHASE 2 · Tools':'المرحلة 2 · الأدوات','PHASE 3 · Applications':'المرحلة 3 · التطبيقات','PHASE 4 · Analysis':'المرحلة 4 · التحليل','Weeks 1-2':'الأسبوع 1-2','Weeks 3-4':'الأسبوع 3-4','Weeks 5-7':'الأسبوع 5-7','Weeks 8-9':'الأسبوع 8-9',
+'P1 Sample Space':'P1 فضاء العينة','P2 Prob. Rules':'P2 قواعد الاحتمال','P3 Distributions':'P3 التوزيعات','P4 Random Gen':'P4 مولّد عشوائي','P5 DES Engine':'P5 محرك DES','P6 Inventory':'P6 المخزون','P7 Analysis':'P7 التحليل','P8 Newspaper':'P8 الجرائد','P9 Statistics':'P9 الإحصاء','P10 Viz + Main':'P10 الرسوم + Main','Week 10: Integration + Testing ➜':'الأسبوع 10: التجميع + الاختبار ➜',
+'Probability & Distributions':'الاحتمالات والتوزيعات','Sample spaces, events, random variables':'فضاءات العينة والأحداث والمتغيرات العشوائية','Discrete (countable)':'منفصل (قابل للعد)','Continuous (interval)':'متصل (فترة)','Die: S = {1,2,3,4,5,6}':'النرد: S = {1,2,3,4,5,6}','Coin: S = {H,T}':'العملة: S = {H,T}','Two coins: S = {HH,HT,TH,TT}':'عملتان: S = {HH,HT,TH,TT}','Flash recycle: S = {x | x > 0}':'زمن إعادة شحن الفلاش: S = {x | x > 0}','Temperature: S = {x | 15 < x < 25}':'درجة الحرارة: S = {x | 15 < x < 25}','Height: S = {x | 150 < x < 200}':'الطول: S = {x | 150 < x < 200}',
+'Events (Page 13)':'الأحداث (صفحة 13)','E = even numbers = {2,4,6}':'E = الأعداد الزوجية = {2,4,6}','Roll the die':'ارمِ النرد','Random Variables (Page 26 / 38)':'المتغيرات العشوائية (صفحة 26 / 38)','Two coins: X = # heads → f(0)=1/4, f(1)=2/4, f(2)=1/4':'عملتان: X = عدد الصور ← f(0)=1/4, f(1)=2/4, f(2)=1/4','Exponential f(x) = e':'التوزيع الأسي f(x) = e','(Page 43)':'(صفحة 43)',
+'Random Numbers Lab':'معمل الأرقام العشوائية','Generate demand (Page 86)':'توليد الطلب (صفحة 86)','Seed:':'البذرة:','Generate 10 days':'ولّد 10 أيام','Demand table':'جدول الطلب','Demand':'الطلب','Prob':'الاحتمال','Cum':'التراكمي','RD Range':'مدى الرقم العشوائي','Draw RD ➜ find its range ➜ get the value':'اسحب رقماً عشوائياً ➜ جد مداه ➜ احصل على القيمة','Discrete-Event Engine':'محرك الأحداث المنفصلة','Virtual clock: minutes pass in seconds · one employee · FIFO queue':'ساعة افتراضية: الدقائق تمر في ثوانٍ · موظف واحد · طابور FIFO','Play':'تشغيل','Sample spaces, events, random variables — try them yourself':'فضاءات العينة والأحداث والمتغيرات العشوائية — جرّبها بنفسك','1 · Events on a die (Pages 7-18)':'1 · الأحداث على النرد (صفحات 7-18)','Click numbers to build an event E, or pick a preset.':'اضغط على الأرقام لتكوين الحدث E أو اختر حدثاً جاهزاً.','Even':'زوجي','Odd':'فردي','Prime':'أولي','Clear':'مسح','Roll ×1':'ارمِ ×1','Roll ×100':'ارمِ ×100','2 · Random variable: two coins (Page 26 / 38)':'2 · متغير عشوائي: عملتان (صفحة 26 / 38)','X = number of heads. Flip and watch the observed bars approach the theory.':'X = عدد الصور. اقلب العملتين وشاهد الأعمدة تقترب من النظرية.','Flip ×1':'اقلب ×1','Flip ×100':'اقلب ×100','3 · Exponential distribution f(x) = e⁻ˣ (Page 43)':'3 · التوزيع الأسي f(x) = e⁻ˣ (صفحة 43)','Move a and b: the shaded area under the PDF is the probability, and the CDF gives the same number as F(b) − F(a).':'حرّك a و b: المساحة المظللة تحت الـ PDF هي الاحتمال، والـ CDF يعطي نفس الرقم F(b) − F(a).',
+'Review every N days, order up to M. Orders arrive after a random lead time.':'مراجعة كل N أيام والطلب حتى M. تصل الطلبيات بعد مدة توريد عشوائية.','Book example':'مثال الكتاب','Random run':'تشغيل عشوائي','Cycles =':'الدورات =','Cyc':'الدورة','Day':'اليوم','Begin':'البداية','Dem':'الطلب','End':'النهاية','Notes':'ملاحظات',
+'Scenario & profit':'السيناريو والربح','Type':'النوع','Good':'جيد','Fair':'متوسط','Poor':'ضعيف','Simulation':'المحاكاة','Days =':'الأيام =','All three order sizes use the same random days (CRN, Page 65) so the comparison is fair.':'أحجام الطلب الثلاثة تستخدم نفس الأيام العشوائية (CRN، صفحة 65) لتكون المقارنة عادلة.','First 10 days — order Q =':'أول 10 أيام — كمية الطلب Q =','Newsday':'نوع اليوم','Sold':'المباع','Unsold':'غير المباع','Lost':'مبيعات ضائعة','Profit':'الربح',
+'Law of Large Numbers · Confidence interval (Pages 57-64)':'قانون الأعداد الكبيرة · فترة الثقة (صفحات 57-64)','Roll a fair die n times. The running average approaches the true mean 3.5, and the 95% CI shrinks as n grows.':'ارمِ نرداً عادلاً n مرة. المتوسط المتحرك يقترب من المتوسط الحقيقي 3.5 وتضيق فترة الثقة 95% كلما زاد n.','Central Limit Theorem (Page 57)':'نظرية النهاية المركزية (صفحة 57)','Average of 30 die rolls, repeated many times: the histogram becomes a bell curve.':'متوسط 30 رمية نرد، مكرراً مرات كثيرة: يصبح المدرج التكراري منحنى جرسياً.','Repeats =':'التكرارات =','Run':'تشغيل','Run verification':'شغّل التحقق','Press the button: every number is recomputed live in your browser and compared with the lecture value.':'اضغط الزرار: كل رقم يُعاد حسابه مباشرة في متصفحك ويُقارن بقيمة المحاضرة.','1 · Arrival event':'1 · حدث الوصول','2 · Queue (FIFO)':'2 · الطابور (FIFO)','3 · Service (employee)':'3 · الخدمة (الموظف)','4 · Departure → OUT':'4 · المغادرة ← خروج','Now serving':'يخدم الآن','In queue':'في الطابور','Completed':'المكتملون','Customer table':'جدول العملاء','Customer':'العميل','Arrival':'الوصول','Service start':'بداية الخدمة','Wait':'الانتظار','Service':'الخدمة','Departure':'المغادرة','Status':'الحالة','Results':'النتائج','Total time':'الزمن الكلي','Avg wait':'متوسط الانتظار','Max wait':'أقصى انتظار','Server busy':'انشغال الموظف','Event timeline':'الجدول الزمني للأحداث','Reset':'إعادة','Speed:':'السرعة:','Entrance':'المدخل','Employee':'الموظف','OUT':'خروج','Example (3 customers)':'مثال (3 عملاء)','Random (6 customers)':'عشوائي (6 عملاء)','Car 1':'سيارة 1','Car 2':'سيارة 2','Car 3':'سيارة 3','Arrive':'وصول','Depart':'مغادرة',
+'Inventory System (M,N)':'نظام المخزون (M,N)','M = 11 units · N = 5 days · 5 cycles = 25 days · Pages 94-113':'M = 11 وحدة · N = 5 أيام · 5 دورات = 25 يوماً · الصفحات 94-113','Total Ending Inv.':'إجمالي المخزون النهائي','Average Inventory':'متوسط المخزون','Shortage Days':'أيام العجز','Shortage Rate':'نسبة العجز','Service Level':'مستوى الخدمة','Inventory over time (hover the points)':'المخزون عبر الزمن (مرّر على النقاط)','1 · Demand for items':'1 · الطلب على المنتجات','2 · Inventory review':'2 · مراجعة المخزون','3 · Receipt of order':'3 · استلام الطلبية',
+'Newspaper Seller':'بائع الجرائد','Buys at $0.33 · sells at $0.50 · unsold = $0.00':'يشتري بـ $0.33 · يبيع بـ $0.50 · غير المباع = $0.00','Average daily profit (Page 140)':'متوسط الربح اليومي (صفحة 140)','Order 40 OPTIMAL':'اطلب 40 ⭐ الأمثل','Order 50':'اطلب 50','Order 60':'اطلب 60','Monte Carlo simulator':'محاكي مونت كارلو','Papers ordered:':'عدد الجرائد المطلوبة:','Days:':'الأيام:','Simulate':'ابدأ المحاكاة','Good 35% = 40 · Fair 45% = 50 · Poor 20% = 60':'جيد 35% = 40 · متوسط 45% = 50 · ضعيف 20% = 60',
+'Statistics, Visuals & Validation':'الإحصاء والرسوم والتحقق','Pages 57-65':'الصفحات 57-65','Confidence Interval':'فترة الثقة','Variance Reduction':'تقليل التباين','CRN · Antithetic Variates · Control Variates · Stratified':'CRN · المتغيرات المتضادة · متغيرات التحكم · الطبقية','Sample mean → population mean · sums → Normal (n ≥ 30)':'متوسط العينة ← متوسط المجتمع · المجاميع ← طبيعي (n ≥ 30)','Results validation (source vs computed)':'التحقق من النتائج ✅ (المصدر مقابل المحسوب)','Metric':'المقياس','Source':'المصدر','Computed':'المحسوب','Match':'تطابق','Avg Inventory':'متوسط المخزون','Newspaper (40)':'الجرائد (40)','100% match with source':'تطابق 100% مع المصدر',
+'Technologies & How to Run':'التقنيات وطريقة التشغيل','Python 3.9+ scientific stack':'حزمة بايثون 3.9+ العلمية','Numerical computing':'الحوسبة العددية','Static charts':'رسوم ثابتة','Interactive dashboard':'لوحة تفاعلية','Data analysis':'تحليل البيانات','Event simulation':'محاكاة الأحداث','Scientific computing':'الحوسبة العلمية','3 steps':'3 خطوات','Copy commands':'انسخ الأوامر','Key features':'المميزات الرئيسية','Full lecture coverage':'تغطية كاملة للمحاضرات','Direct concept application':'تطبيق مباشر للمفاهيم','Statistical analysis':'تحليل إحصائي','Interactive charts':'رسوم تفاعلية','Flexible architecture':'بنية مرنة','Python Files':'ملفات بايثون','Unit Tests':'اختبارات الوحدة','Modules':'الوحدات','Ref. Pages':'صفحات مرجعية','References':'المراجع',
+'Banks, Carson II, Nelson, Nicol – Discrete-Event System Simulation, 5th Ed. · Law – Simulation Modeling and Analysis, 5th Ed. · Downey – Modeling and Simulation in Python · Chaturvedi – Modeling & Simulation Using MATLAB · BAS221 Lecture Slides, Dr. Amr A. Hassanain':'بانكس وكارسون ونيلسون ونيكول – محاكاة نظم الأحداث المنفصلة، الطبعة 5 · لو – النمذجة والمحاكاة والتحليل، الطبعة 5 · داوني – النمذجة والمحاكاة في بايثون · شاتورفيدي – النمذجة والمحاكاة باستخدام MATLAB · شرائح محاضرات BAS221، د. عمرو أ. حسنين',
+'Meet the Team':'تعرّف على الفريق','Students · 10 weeks · one platform (click a photo to zoom)':'طلاب · 10 أسابيع · منصة واحدة (اضغط على الصورة للتكبير)','Get in touch':'تواصل معنا','Questions about SmartSim? Reach us anywhere.':'عندك سؤال عن SmartSim؟ تواصل معنا في أي وقت.','WhatsApp':'واتساب','Email':'البريد الإلكتروني','GitHub Repo':'مستودع GitHub','Download Project (ZIP)':'تحميل المشروع (ZIP)','Send us a message on WhatsApp':'أرسل لنا رسالة على واتساب','Send via WhatsApp':'أرسل عبر واتساب',
+'Made with by the SmartSim team · Sphinx University · BAS221 · Fall 2027':'صُنع بـ ❤️ بواسطة فريق SmartSim · جامعة سفنكس · BAS221 · خريف 2027'};
+const EM=/[\p{Extended_Pictographic}\u200d\uFE0F\u20E3]/gu,norm=t=>t.replace(EM,"").replace(/\s+/g," ").trim();
+const LEAD=/^[\s\p{Extended_Pictographic}\u200d\uFE0F]*/u,TRAIL=/[\s\p{Extended_Pictographic}\u200d\uFE0F]*$/u;
+function apply(){const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest("script,style,pre,svg")?3:1});const a=[];while(w.nextNode())a.push(w.currentNode);
+a.forEach(n=>{const done=n.tv!==undefined&&n.nodeValue===n.tv;
+if(L==="en"){if(done){n.nodeValue=n.o;n.tv=undefined}return}
+if(done)return;const o=n.nodeValue,v=AR[norm(o)];if(!v)return;n.o=o;n.tv=o.match(LEAD)[0]+v+o.match(TRAIL)[0];n.nodeValue=n.tv})}
+function setLang(l){L=l;root.lang=l;root.dir=l==="ar"?"rtl":"ltr";apply();
+$("#lg").textContent=l==="ar"?"EN":"عربي";
+$("#nm").placeholder=l==="ar"?"اسمك":"Your name";$("#ms").placeholder=l==="ar"?"رسالتك":"Your message";
+document.title=l==="ar"?"SmartSim | منصة محاكاة تعليمية متكاملة":"SmartSim | Integrated Educational Simulation Platform";
+relang();$("#gen").click();build();ci=0;del=0}
+$("#lg").onclick=()=>setLang(L==="en"?"ar":"en");
+</script>
+</body>
+</html>
